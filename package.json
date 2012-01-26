@@ -1,0 +1,12 @@
+{
+    "user": "CHAOS",
+    "name": "ChaosEditorMain",
+    "domain": "editor.chaoscollective.org",
+    "repository": {
+        "type": "local",
+        "directory": "/NETFS/2011_09_23_EditorMain"
+    },
+    "scripts": {
+        "start": "server.js"
+    }
+}
