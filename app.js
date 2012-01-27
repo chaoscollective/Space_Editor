@@ -529,9 +529,36 @@ function localProjectDeploy(userObj, deployerCallback){
   
   console.log("DEPLOYMENT PLACEHOLDER: " + projectName);
 
-  var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
-  deployerCallback(null, launchURL);
+  exec('stop node_'+userObj.teamID, { 
+      encoding: 'utf8', 
+      timeout: 30000, 
+      maxBuffer: 200*1024, 
+      killSignal: 'SIGTERM',
+      env: null
+    }, 
+    function (error, stdout, stderr) {
+      if (error !== null) {
+        console.log('exec error: ' + error);
+      }
+      exec('start node_'+userObj.teamID, { 
+          encoding: 'utf8', 
+          timeout: 30000, 
+          maxBuffer: 200*1024, 
+          killSignal: 'SIGTERM',
+          env: null
+        }, 
+        function (error, stdout, stderr) {
+          if (error !== null) {
+            console.log('exec error: ' + error);
+          }
+          var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
+          deployerCallback(null, launchURL);        
+        }
+      ); // exec 2
+    }
+  ); // exec 1
 
+  
   /*
   var haibuApp = {
     "user": team,
