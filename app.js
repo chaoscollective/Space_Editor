@@ -22,13 +22,6 @@ if(teamID == thisAppDirName) {
   teamID = "Sandbox";
 }
 
-/*
-var haibuClient = new haibu.drone.Client({
-  host: 'localhost',
-  port: 9002
-});
-*/
-
 var localFileIsMostRecent = []; // an array of flags indicating if the file has been modified since last save.
 var nowjs = require("now");
 var everyone = nowjs.initialize(app);
@@ -535,6 +528,9 @@ function localProjectDeploy(userObj, deployerCallback){
   var projectName = team;
   
   console.log("DEPLOYMENT PLACEHOLDER: " + projectName);
+
+  var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
+  deployerCallback(null, launchURL);
 
   /*
   var haibuApp = {
