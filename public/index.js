@@ -1304,7 +1304,7 @@ now.ready(function(){
   if(specifiedFileToOpen){
     openFileFromServer(specifiedFileToOpen);
   }else{
-    openFileFromServer("server.js");
+    openFileFromServer("app.js");
   }
   now.s_getAllProjectsFiles(function(err, filesAndInfo){
     updateFileBrowserFromFileList(filesAndInfo);

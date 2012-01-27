@@ -5,22 +5,21 @@ var express = require("express"); //"-unstable");
 var util    = require("util");
 var fs      = require('fs');
 var crypto  = require('crypto');
-//var git     = require('git');
 var walk    = require('walk');
 var spawn   = require('child_process').spawn;
 var exec    = require('child_process').exec;
-//var haibu   = require('haibu');
 
 var app = express.createServer(); 
 app.use(express.static(__dirname + '/public'));
-app.listen(3141); 
+var port = process.env.PORT || 3141;
+app.listen(port); 
  
 var thisAppDirName = __dirname.substring(__dirname.lastIndexOf("/")+1);
 //console.log("MY DIR NAME IS: " + thisAppDirName); 
 
-var teamID = "2011_11_13_EditorDev";
+var teamID = "EditorDev";
 if(teamID == thisAppDirName) {
-  teamID = "2011_11_13_Sandbox";
+  teamID = "Sandbox";
 }
 
 /*
@@ -154,7 +153,7 @@ everyone.now.s_getAllProjectsFiles = function(callback){
     // use this to remove/sort files before doing the more expensive "stat" operation.
     //console.log(root + " / " + nodeNamesArray);
     for(var i=nodeNamesArray.length-1; i>=0; i--){
-      if(nodeNamesArray[i] == ".git"){
+      if(nodeNamesArray[i] == ".git" || nodeNamesArray[i] == "node_modules"){
         nodeNamesArray.splice(i, 1);
       }
     }
@@ -535,6 +534,9 @@ function localProjectDeploy(userObj, deployerCallback){
   var projPath = '/NETFS/'+team;
   var projectName = team;
   
+  console.log("DEPLOYMENT PLACEHOLDER: " + projectName);
+
+  /*
   var haibuApp = {
     "user": team,
     "name": projectName,
@@ -570,6 +572,7 @@ function localProjectDeploy(userObj, deployerCallback){
       });
     }
   });
+  */
 }
 //
 // UTF-8 data encode/decode: http://www.webtoolkit.info/
