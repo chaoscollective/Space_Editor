@@ -555,7 +555,9 @@ function localProjectDeploy(userObj, deployerCallback){
           var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
           console.log("START: " + stdout);
           console.log("DEPLOY SUCCESSFUL: " + launchURL);
-          deployerCallback(null, launchURL);        
+          setTimeout(function(){
+            deployerCallback(null, launchURL);  
+          }, 500);    
         }
       ); // exec 2
     }
