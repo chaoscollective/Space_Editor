@@ -540,6 +540,7 @@ function localProjectDeploy(userObj, deployerCallback){
       if (error !== null) {
         console.log('exec error: ' + error);
       }
+      console.log("STOP: " + stdout);
       exec('start node_'+userObj.teamID, { 
           encoding: 'utf8', 
           timeout: 30000, 
@@ -552,6 +553,7 @@ function localProjectDeploy(userObj, deployerCallback){
             console.log('exec error: ' + error);
           }
           var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
+          console.log("START: " + stdout);
           console.log("DEPLOY SUCCESSFUL: " + launchURL);
           deployerCallback(null, launchURL);        
         }
