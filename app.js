@@ -552,6 +552,7 @@ function localProjectDeploy(userObj, deployerCallback){
             console.log('exec error: ' + error);
           }
           var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
+          console.log("DEPLOY SUCCESSFUL: " + launchURL);
           deployerCallback(null, launchURL);        
         }
       ); // exec 2
