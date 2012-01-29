@@ -27,12 +27,20 @@ var nowjs = require("now");
 var everyone = nowjs.initialize(app);
 nowjs.on('connect', function () { 
   console.log("CONNECT    > " + this.user.clientId);
+  //console.log(this.user); // just clientId and cookies.
+  //console.log(this.socket);
+  //console.log(this.now.name);
   this.user.teamID      = teamID;
+  if(this.now.teamID != ''){
+    this.user.teamID = this.now.teamID;
+  }
+  console.log(" >> PROJECT="+this.user.teamID);
   this.user.grouplist   = []; // file groups starts out empty.
   this.user.about       = [];
   this.user.about.name  = "Default Username";
   this.user.about.email = "default@chaos.org";
   addUserToFileGroup(this.user, ""); // the blank file group is the the team group.
+  this.now.c_confirmProject(this.user.teamID);
 });
 nowjs.on('disconnect', function () {
     console.log("DISCONNECT > "+this.user.clientId+" >> "+this.user.about.name+" <"+this.user.about.email+">"); 
@@ -53,17 +61,20 @@ nowjs.on('disconnect', function () {
 // NOW: Remote collab messages.
 //
 everyone.now.s_sendCursorUpdate = function(fname, range, changedByUser){
-  var filegroup = nowjs.getGroup(teamID+fname);
+  var userObj = this.user;
+  var filegroup = nowjs.getGroup(userObj.teamID+fname);
   filegroup.now.c_updateCollabCursor(this.user.clientId, this.now.name, range, changedByUser);
 };
 everyone.now.s_sendDiffPatchesToCollaborators = function(fname, patches, crc32){
-  localFileIsMostRecent[teamID+fname] = false; // mark file as changed.
-  var filegroup = nowjs.getGroup(teamID+fname);
+  var userObj = this.user;
+  localFileIsMostRecent[userObj.teamID+fname] = false; // mark file as changed.
+  var filegroup = nowjs.getGroup(userObj.teamID+fname);
   filegroup.now.c_updateWithDiffPatches(this.user.clientId, patches, crc32);
 };
 everyone.now.s_requestFullFileFromUserID = function(fname, id, fileRequesterCallback){
-  var filegroup = nowjs.getGroup(teamID+fname);
   var callerID = this.user.clientId;
+  var userObj = this.user;
+  var filegroup = nowjs.getGroup(userObj.teamID+fname);
   filegroup.hasClient(id, function (bool) {
     if (bool) {
       console.log("requesting full file. valid filegroup. :)");
@@ -100,15 +111,15 @@ everyone.now.s_sendUserEvent = function(event){
 //
 everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileRequesterCallback){
   var callerID = this.user.clientId;
-  var origUser = this.user;
-  addUserToFileGroup(origUser, fname);
+  var userObj = this.user;
+  addUserToFileGroup(userObj, fname);
   //removeUserFromAllFileGroupsAndAddToThis(origUser, fname);
-  if(localFileIsMostRecent[teamID+fname] === true || localFileIsMostRecent[teamID+fname] === undefined){
-    localFileFetch(origUser, fname, fileRequesterCallback);
-    console.log("FILE FETCH: " + fname + ", by user: " + callerID);
+  if(localFileIsMostRecent[userObj.teamID+fname] === true || localFileIsMostRecent[userObj.teamID+fname] === undefined){
+    localFileFetch(userObj, fname, fileRequesterCallback);
+    console.log("FILE FETCH: " + userObj.teamID + " >> " + fname + ", by user: " + callerID);
   }else{
-    console.log("FILE FETCH (passed to user): " + fname + ", by user: " + callerID);
-    var filegroup = nowjs.getGroup(teamID+fname);
+    console.log("FILE FETCH (passed to user): " + userObj.teamID + " >> " + fname + ", by user: " + callerID);
+    var filegroup = nowjs.getGroup(userObj.teamID+fname);
     var users = filegroup.getUsers(function (users) {
       var foundUser = false;
       for (var i = 0; i < users.length; i++){ 
@@ -118,7 +129,7 @@ everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileReque
           nowjs.getClient(users[i], function(){
             if(this.now === undefined){
               console.log("Undefined clientId for requestFullFileFromUserID (using local) >> " + users[i]);
-              localFileFetch(origUser, fname, fileRequesterCallback);
+              localFileFetch(userObj, fname, fileRequesterCallback);
             }else{
               this.now.c_userRequestedFullFile(fname, callerID, fileRequesterCallback);
             }
@@ -128,8 +139,8 @@ everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileReque
         }
       }
       if(!foundUser){
-        console.log("Flagged as changed, but no user with file: "+fname+" >> FETCHING last saved.");
-        localFileFetch(origUser, fname, fileRequesterCallback);
+        console.log("Flagged as changed, but no user with file: "+userObj.teamID+" >> "+fname+" >> FETCHING last saved.");
+        localFileFetch(userObj, fname, fileRequesterCallback);
       }
     });
   }
@@ -191,7 +202,7 @@ everyone.now.s_deleteFile = function(fname, fileDeleterCallback){
   if(usersInFile === undefined || usersInFile === 0){
     localFileDelete(this.user, fname, fileDeleterCallback);
   }else{
-    console.log("Cannot delete file. There are users in it! " + fname);
+    console.log("Cannot delete file. There are users in it! " + this.user.teamID+" >> "+fname);
     fileCallback(fname, ["Cannot delete file. There are users in it!"]);
   }
 };
@@ -200,7 +211,7 @@ everyone.now.s_renameFile = function(fname, newFName, fileRenamerCallback){
   if(usersInFile === undefined || usersInFile === 0){
     localFileRename(this.user, fname, newFName, fileRenamerCallback);
   }else{
-    console.log("Cannot rename file. There are users in it! " + fname);
+    console.log("Cannot rename file. There are users in it! " + this.user.teamID+" >> "+fname);
     fileCallback(fname, ["Cannot rename file. There are users in it!"]);
   }
 };

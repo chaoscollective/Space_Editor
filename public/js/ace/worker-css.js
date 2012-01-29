@@ -1,3 +1,5 @@
+"no use strict";
+
 var console = {
     log: function(msg) {
         postMessage({type: "log", data: msg});
@@ -41,7 +43,7 @@ var require = function(parentId, id) {
     
     var chunks = id.split("/");
     chunks[0] = require.tlns[chunks[0]] || chunks[0];
-    path = chunks.join("/") + ".js";
+    var path = chunks.join("/") + ".js";
     
     require.id = id;
     importScripts(path);
@@ -62,12 +64,16 @@ var define = function(id, deps, factory) {
     if (id.indexOf("text!") === 0) 
         return;
     
+    var req = function(deps, factory) {
+        return require(id, deps, factory);
+    };
+
     require.modules[id] = {
         factory: function() {
             var module = {
                 exports: {}
             };
-            var returnExports = factory(require.bind(null, id), module.exports, module);
+            var returnExports = factory(req, module.exports, module);
             if (returnExports)
                 module.exports = returnExports;
             return module;
@@ -127,7 +133,7 @@ onmessage = function(e) {
         main = new clazz(sender);
     } 
     else if (msg.event && sender) {
-        sender._dispatchEvent(msg.event, msg.data);
+        sender._emit(msg.event, msg.data);
     }
 };
 // vim:set ts=4 sts=4 sw=4 st:
@@ -143,20 +149,24 @@ onmessage = function(e) {
 */
 
 define('ace/lib/fixoldbrowsers', ['require', 'exports', 'module' , 'ace/lib/regexp', 'ace/lib/es5-shim'], function(require, exports, module) {
+"use strict";
 
 require("./regexp");
 require("./es5-shim");
 
-});define('ace/lib/regexp', ['require', 'exports', 'module' ], function(require, exports, module) {
-
-// Based on code from:
-//
-// XRegExp 1.5.0
-// (c) 2007-2010 Steven Levithan
-// MIT License
-// <http://xregexp.com>
-// Provides an augmented, extensible, cross-browser implementation of regular expressions,
-// including support for additional syntax, flags, and methods
+});/**
+ *  Based on code from:
+ *
+ * XRegExp 1.5.0
+ * (c) 2007-2010 Steven Levithan
+ * MIT License
+ * <http://xregexp.com>
+ * Provides an augmented, extensible, cross-browser implementation of regular expressions,
+ * including support for additional syntax, flags, and methods
+ */
+ 
+define('ace/lib/regexp', ['require', 'exports', 'module' ], function(require, exports, module) {
+"use strict";
 
     //---------------------------------
     //  Private variables
@@ -1352,6 +1362,7 @@ var prepareString = "a"[0] != "a",
  * ***** END LICENSE BLOCK ***** */
 
 define('ace/lib/event_emitter', ['require', 'exports', 'module' ], function(require, exports, module) {
+"use strict";
 
 var EventEmitter = {};
 
@@ -1468,6 +1479,7 @@ exports.EventEmitter = EventEmitter;
  * ***** END LICENSE BLOCK ***** */
 
 define('ace/lib/oop', ['require', 'exports', 'module' ], function(require, exports, module) {
+"use strict";
 
 exports.inherits = (function() {
     var tempCtor = function() {};
@@ -1476,7 +1488,7 @@ exports.inherits = (function() {
         ctor.super_ = superCtor.prototype;
         ctor.prototype = new tempCtor();
         ctor.prototype.constructor = ctor;
-    }
+    };
 }());
 
 exports.mixin = function(obj, mixin) {
@@ -1528,7 +1540,8 @@ exports.implement = function(proto, mixin) {
  * ***** END LICENSE BLOCK ***** */
  
 define('ace/mode/css_worker', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/worker/mirror', 'ace/mode/css/csslint'], function(require, exports, module) {
-    
+"use strict";
+
 var oop = require("../lib/oop");
 var Mirror = require("../worker/mirror").Mirror;
 var CSSLint = require("./css/csslint").CSSLint;
@@ -1545,7 +1558,7 @@ oop.inherits(Worker, Mirror);
     this.onUpdate = function() {
         var value = this.doc.getValue();
         
-        result = CSSLint.verify(value);
+        var result = CSSLint.verify(value);
         this.sender.emit("csslint", result.messages.map(function(msg) {
             delete msg.rule;
             return msg;
@@ -1554,9 +1567,9 @@ oop.inherits(Worker, Mirror);
     
 }).call(Worker.prototype);
 
-});
-define('ace/worker/mirror', ['require', 'exports', 'module' , 'ace/document', 'ace/lib/lang'], function(require, exports, module) {
-    
+});define('ace/worker/mirror', ['require', 'exports', 'module' , 'ace/document', 'ace/lib/lang'], function(require, exports, module) {
+"use strict";
+
 var Document = require("../document").Document;
 var lang = require("../lib/lang");
     
@@ -1634,6 +1647,7 @@ var Mirror = exports.Mirror = function(sender) {
  * ***** END LICENSE BLOCK ***** */
 
 define('ace/document', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/lib/event_emitter', 'ace/range', 'ace/anchor'], function(require, exports, module) {
+"use strict";
 
 var oop = require("./lib/oop");
 var EventEmitter = require("./lib/event_emitter").EventEmitter;
@@ -1704,7 +1718,7 @@ var Document = function(text) {
           case "auto":
               return this.$autoNewLine;
       }
-    },
+    };
 
     this.$autoNewLine = "\n";
     this.$newLineMode = "auto";
@@ -1767,7 +1781,7 @@ var Document = function(text) {
             position.column = this.getLine(length-1).length;
         }
         return position;
-    }
+    };
 
     this.insert = function(position, text) {
         if (text.length == 0)
@@ -1805,9 +1819,9 @@ var Document = function(text) {
             range: range,
             lines: lines
         };
-        this._dispatchEvent("change", { data: delta });
+        this._emit("change", { data: delta });
         return range.end;
-    },
+    };
 
     this.insertNewLine = function(position) {
         position = this.$clipPosition(position);
@@ -1826,7 +1840,7 @@ var Document = function(text) {
             range: Range.fromPoints(position, end),
             text: this.getNewLineCharacter()
         };
-        this._dispatchEvent("change", { data: delta });
+        this._emit("change", { data: delta });
 
         return end;
     };
@@ -1850,7 +1864,7 @@ var Document = function(text) {
             range: Range.fromPoints(position, end),
             text: text
         };
-        this._dispatchEvent("change", { data: delta });
+        this._emit("change", { data: delta });
 
         return end;
     };
@@ -1902,7 +1916,7 @@ var Document = function(text) {
             range: range,
             text: removed
         };
-        this._dispatchEvent("change", { data: delta });
+        this._emit("change", { data: delta });
         return range.start;
     };
 
@@ -1923,7 +1937,7 @@ var Document = function(text) {
             nl: this.getNewLineCharacter(),
             lines: removed
         };
-        this._dispatchEvent("change", { data: delta });
+        this._emit("change", { data: delta });
         return removed;
     };
 
@@ -1941,7 +1955,7 @@ var Document = function(text) {
             range: range,
             text: this.getNewLineCharacter()
         };
-        this._dispatchEvent("change", { data: delta });
+        this._emit("change", { data: delta });
     };
 
     this.replace = function(range, text) {
@@ -1970,13 +1984,13 @@ var Document = function(text) {
             var range = Range.fromPoints(delta.range.start, delta.range.end);
 
             if (delta.action == "insertLines")
-                this.insertLines(range.start.row, delta.lines)
+                this.insertLines(range.start.row, delta.lines);
             else if (delta.action == "insertText")
-                this.insert(range.start, delta.text)
+                this.insert(range.start, delta.text);
             else if (delta.action == "removeLines")
-                this.removeLines(range.start.row, range.end.row - 1)
+                this.removeLines(range.start.row, range.end.row - 1);
             else if (delta.action == "removeText")
-                this.remove(range)
+                this.remove(range);
         }
     };
 
@@ -1987,13 +2001,13 @@ var Document = function(text) {
             var range = Range.fromPoints(delta.range.start, delta.range.end);
 
             if (delta.action == "insertLines")
-                this.removeLines(range.start.row, range.end.row - 1)
+                this.removeLines(range.start.row, range.end.row - 1);
             else if (delta.action == "insertText")
-                this.remove(range)
+                this.remove(range);
             else if (delta.action == "removeLines")
-                this.insertLines(range.start.row, delta.lines)
+                this.insertLines(range.start.row, delta.lines);
             else if (delta.action == "removeText")
-                this.insert(range.start, delta.text)
+                this.insert(range.start, delta.text);
         }
     };
 
@@ -2039,6 +2053,7 @@ exports.Document = Document;
  * ***** END LICENSE BLOCK ***** */
 
 define('ace/range', ['require', 'exports', 'module' ], function(require, exports, module) {
+"use strict";
 
 var Range = function(startRow, startColumn, endRow, endColumn) {
     this.start = {
@@ -2053,6 +2068,12 @@ var Range = function(startRow, startColumn, endRow, endColumn) {
 };
 
 (function() {
+    this.isEequal = function(range) {
+        return this.start.row == range.start.row &&
+            this.end.row == range.end.row &&
+            this.start.column == range.start.column &&
+            this.end.column == range.end.column
+    };
 
     this.toString = function() {
         return ("Range: [" + this.start.row + "/" + this.start.column +
@@ -2350,6 +2371,7 @@ exports.Range = Range;
  * ***** END LICENSE BLOCK ***** */
 
 define('ace/anchor', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/lib/event_emitter'], function(require, exports, module) {
+"use strict";
 
 var oop = require("./lib/oop");
 var EventEmitter = require("./lib/event_emitter").EventEmitter;
@@ -2469,7 +2491,7 @@ var Anchor = exports.Anchor = function(doc, row, column) {
         
         this.row = pos.row;
         this.column = pos.column;
-        this._dispatchEvent("change", {
+        this._emit("change", {
             old: old,
             value: pos
         });
@@ -2542,6 +2564,7 @@ var Anchor = exports.Anchor = function(doc, row, column) {
  * ***** END LICENSE BLOCK ***** */
 
 define('ace/lib/lang', ['require', 'exports', 'module' ], function(require, exports, module) {
+"use strict";
 
 exports.stringReverse = function(string) {
     return string.split("").reverse().join("");
@@ -2555,7 +2578,7 @@ var trimBeginRegexp = /^\s\s*/;
 var trimEndRegexp = /\s\s*$/;
 
 exports.stringTrimLeft = function (string) {
-    return string.replace(trimBeginRegexp, '')
+    return string.replace(trimBeginRegexp, '');
 };
 
 exports.stringTrimRight = function (string) {
@@ -2572,11 +2595,11 @@ exports.copyObject = function(obj) {
 
 exports.copyArray = function(array){
     var copy = [];
-    for (i=0, l=array.length; i<l; i++) {
+    for (var i=0, l=array.length; i<l; i++) {
         if (array[i] && typeof array[i] == "object")
             copy[i] = this.copyObject( array[i] );
         else 
-            copy[i] = array[i]
+            copy[i] = array[i];
     }
     return copy;
 };
@@ -2595,7 +2618,7 @@ exports.deepCopy = function (obj) {
         }
     }
     return copy;
-}
+};
 
 exports.arrayToMap = function(arr) {
     var map = {};
@@ -2633,7 +2656,7 @@ exports.deferredCall = function(fcn) {
         deferred.cancel();
         timer = setTimeout(callback, timeout || 0);
         return deferred;
-    }
+    };
 
     deferred.schedule = deferred;
 

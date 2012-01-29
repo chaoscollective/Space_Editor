@@ -1,737 +1,776 @@
 @font-face {
-	font-family: "Inconsolata";
-	src: url("./fonts/Inconsolata.otf");
+  font-family: "Inconsolata";
+  src: url("./fonts/Inconsolata.otf");
 }
 
 body {
     overflow: hidden;
-	margin: 0;
-	font-family: Arial, sans-serif;
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 
 ::-webkit-scrollbar-thumb {
-	border: 2px solid #000;
-	background: rgb(40, 42, 46);
-	border-radius: 0px;
+  border: 2px solid #000;
+  background: rgb(40, 42, 46);
+  border-radius: 0px;
 }
 ::-webkit-scrollbar {
-	height: 12px;
-	width: 12px;
-	background: #000;
+  height: 12px;
+  width: 12px;
+  background: #000;
 }
 ::-webkit-full-screen {
-	width: 100%;
-	height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .ace_scroller {
-	overflow-x: hidden !important;
+  overflow-x: hidden !important;
 }
 #bottom {
-	position: absolute;
-	left: 0px;
-	bottom: 0px;
-	right: 0px;
-	height: 34px;
-	background: #000;
-	z-index: 1001;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  height: 34px;
+  background: #000;
+  z-index: 1001;
 }
 #top {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	height: 34px;
-	background: url("./png/header_ptrn.png") top left repeat #CCC;
-	border-bottom: 1px solid #282A2E;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  height: 34px;
+  background: url("./png/header_ptrn.png") top left repeat #CCC;
+  border-bottom: 1px solid #282A2E;
 }
 #notifications {
-	position: absolute;
-	right: 15px;
-	top: 45px;
-	width: 200px;
-	overflow: visible;
-	z-index: 100;
+  position: absolute;
+  right: 15px;
+  top: 45px;
+  width: 200px;
+  overflow: visible;
+  z-index: 100;
 }
 .notificationItem {
-	background: rgba(0,0,0,0.85);
-	color: #FFF;
-	font-size: 11px;
-	padding: 10px;
-	border-top: 1px solid #FFF;
-	margin-bottom: 4px;
+  background: rgba(0,0,0,0.85);
+  color: #FFF;
+  font-size: 11px;
+  padding: 10px;
+  border-top: 1px solid #FFF;
+  margin-bottom: 4px;
 }
 .notificationItem span {
-	color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 #topMenu {
-	position: absolute;
-	right: 42px;
-	top: 0px;
-	width: 300px;
-	text-align: right;
+  position: absolute;
+  right: 42px;
+  top: 0px;
+  width: 300px;
+  text-align: right;
 }
 .topMenuItem {
-	display: inline-block;
-	padding: 2px;
-	padding-right: 6px;
-	padding-left: 6px;
-	font-size: 11px;
-	color: #1A1A1A;
-	cursor: pointer;
-	margin: 9px;
+  display: inline-block;
+  padding: 3px;
+  padding-right: 6px;
+  padding-left: 6px;
+  font-size: 11px;
+  color: #1A1A1A;
+  cursor: pointer;
+  margin: 9px;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 .topMenuItem span {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 .topMenuItemOpen {
-	background: #1A1A1A;
-	color: rgba(255, 255, 255, 0.98);
+  background: #1A1A1A;
+  color: rgba(255, 255, 255, 0.98);
 }
 #logWindow {
-	position: absolute;
-	right: 15px;
-	top: 35px;
-	width: 200px;
-	background: rgba(0, 0, 0, 1);
-	z-index: 10;
-	display: none;
-	bottom: 350px;
+  position: absolute;
+  right: 15px;
+  top: 35px;
+  width: 200px;
+  background: rgba(0, 0, 0, 1);
+  z-index: 10;
+  display: none;
+  bottom: 350px;
 }
 #logWindowCaret {
-	position: absolute;
-	top: -8px;
-	right: 50px;
-	border: 4px solid rgba(0,0,0,0);
-	border-bottom: 4px solid #000;
+  position: absolute;
+  top: -12px;
+  right: 86px;
+  border: 6px solid transparent;
+  border-bottom: 6px solid black;
 }
 #logWindowContent {
-	position: absolute;
-	left: 10px;
-	right: 0px;
-	top: 10px;
-	bottom: 2px;
-	overflow-y: scroll;
+  position: absolute;
+  left: 10px;
+  right: 0px;
+  top: 10px;
+  bottom: 2px;
+  overflow-y: scroll;
 }
 .logItem {
-	position: relative;
-	background: rgba(0, 0, 0, 0.85);
-	color: rgba(255, 255, 255, 0.8);
-	font-size: 10px;
-	padding: 0;
-	margin-bottom: 4px;
-	padding-top: 4px;
-	padding-bottom: 6px;
-	line-height: 13px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.85);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
+  padding: 0;
+  margin-bottom: 4px;
+  padding-top: 4px;
+  padding-bottom: 6px;
+  line-height: 13px;
 }
 .logItemTop {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 50px;
-	height: 0px;
-	border-top: 1px solid white;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 50px;
+  height: 0px;
+  border-top: 1px solid white;
 }
 .logItem span {
-	color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 /* special types for notifications and log */
 .itemType_fileAction {
-	display: block;
-	color: rgba(255, 255, 0, 0.8);
-	font-family: monospace;
-	font-size: 11px;
-	text-align: right;
+  display: block;
+  color: rgba(255, 255, 0, 0.8);
+  font-family: monospace;
+  font-size: 11px;
+  text-align: right;
 }
 .itemType_projectAction {
-	display: block;
-	color: rgba(255, 0, 255, 0.8);
-	font-family: Arial, sans-serif;
-	font-size: 11px;
-	text-align: right;
+  display: block;
+  color: rgba(255, 0, 255, 0.8);
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  text-align: right;
+}
+#topProjName {
+  position: absolute;
+  z-index: 0;
+  left: 2px;
+  top: 2px;
+  font-size: 26px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.4);
+  text-align: center;
+  right: 2px;
 }
 
 #editor { 
-	margin: 0px;
+  margin: 0px;
     position: absolute;
     top: 35px;
     bottom: 36px;
     left: 0px;
     right: 0px;
-	font-size: 11px;
-	line-height: 12px;
-	/*font-family: 'Courier New', 'Courier', monospaced;*/
-	font-family: "Inconsolata", "Courier New", monospace;
-	/*-webkit-font-smoothing: antialiased;*/
+  font-size: 11px;
+  line-height: 12px;
+  /*font-family: 'Courier New', 'Courier', monospaced;*/
+  font-family: "Inconsolata", "Courier New", monospace;
+  /*-webkit-font-smoothing: antialiased;*/
 }
 #whoIAm {
-	font-family: Arial, sans-serif;
-	font-size: 11px;
-	color: #191919;
-	position: absolute;
-	top: 11px;
-	left: 15px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #191919;
+  position: absolute;
+  top: 11px;
+  left: 15px;
 }
 #whoAreThey {
-	font-family: Arial, sans-serif;
-	position: absolute;
-	top: 8px;
-	right: 8px;
-	width: 20px;
-	height: 15px;
-	background: #222;
-	font-size: 11px;
-	text-align: center;
-	padding-top: 4px;
-	color: white;
-	cursor: pointer;
+  font-family: Arial, sans-serif;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 15px;
+  background: #222;
+  font-size: 11px;
+  text-align: center;
+  padding-top: 4px;
+  color: white;
+  cursor: pointer;
 }
 #dataStatBlock {
-	position: absolute;
-	left: 3px;
-	top: 16px;
-	width: 4px;
-	height: 4px;
-	border-radius: 10px;
-	background: #444;
+  position: absolute;
+  left: 3px;
+  top: 16px;
+  width: 4px;
+  height: 4px;
+  border-radius: 10px;
+  background: #444;
 }
 #preflightButton {
-	position: absolute;
-	font-family: Arial, sans-serif;
-	right: 115px;
-	top: 0px;
-	height: 23px;
-	width: 85px;
-	letter-spacing: 3px;
-	color: white;
-	font-size: 11px;
-	padding-top: 11px;
-	cursor: pointer;
-	background: url("./png/preflight.png") center right no-repeat;
-	opacity: 0.5;
+  position: absolute;
+  font-family: Arial, sans-serif;
+  right: 115px;
+  top: 0px;
+  height: 23px;
+  width: 85px;
+  letter-spacing: 3px;
+  color: white;
+  font-size: 11px;
+  padding-top: 11px;
+  cursor: pointer;
+  background: url("./png/preflight.png") center right no-repeat;
+  opacity: 0.5;
 }
 #preflightButton:hover {
-	opacity: 1.0;
+  opacity: 1.0;
 }
 #launchButton {
-	position: absolute;
-	font-family: Arial, sans-serif;
-	right: 10px;
-	top: 0px;
-	height: 23px;
-	width: 83px;
-	letter-spacing: 3px;
-	color: white;
-	font-size: 11px;
-	padding-top: 11px;
-	cursor: pointer;
-	background: url("./png/launch.png") center right no-repeat;
-	opacity: 0.5;
+  position: absolute;
+  font-family: Arial, sans-serif;
+  right: 10px;
+  top: 0px;
+  height: 23px;
+  width: 83px;
+  letter-spacing: 3px;
+  color: white;
+  font-size: 11px;
+  padding-top: 11px;
+  cursor: pointer;
+  background: url("./png/launch.png") center right no-repeat;
+  opacity: 0.5;
 }
 #launchButton:hover {
-	opacity: 1.0;
+  opacity: 1.0;
 }
 #filebrowserButton {
-	position:absolute;
-	top: 0px;
-	left: 10px;
-	width: 34px;
-	height: 34px;
-	background: url("./png/filebrowse_open.png") center center no-repeat;
-	cursor: pointer;
-	z-index: 2;
+  position:absolute;
+  top: 0px;
+  left: 10px;
+  width: 34px;
+  height: 34px;
+  background: url("./png/filebrowse_open.png") center center no-repeat;
+  cursor: pointer;
+  z-index: 2;
 }
 #fileHistory {
-	position: absolute;
-	left: 51px;
-	top: 0px;
-	width: 600px;
-	height: 34px;
+  position: absolute;
+  left: 51px;
+  top: 0px;
+  width: 600px;
+  height: 34px;
 }
 .openFileHeader {
-	position: relative;
-	display: inline-block;
-	font-size: 11px;
-	color: #FFF;
-	padding: 11px;
-	margin-right: 2px;
-	opacity: 0.98;
-	cursor: pointer;
-	padding-right: 7px;
+  position: relative;
+  display: inline-block;
+  font-size: 11px;
+  color: #FFF;
+  padding: 11px;
+  margin-right: 2px;
+  opacity: 0.98;
+  cursor: pointer;
+  padding-right: 7px;
 }
 #fileBrowser {
-	position: absolute;
-	bottom: -315px;
-	height: 350px;
-	left: 0px;
-	right: 0px;
-	background: rgba(0, 0, 0, 0.90);
-	z-index: 1000;
-	border-top: 1px solid rgb(102, 102, 102);
+  position: absolute;
+  bottom: -315px;
+  height: 350px;
+  left: 0px;
+  right: 0px;
+  background: rgba(0, 0, 0, 0.90);
+  z-index: 1000;
+  border-top: 1px solid rgb(102, 102, 102);
 }
 #fileBrowserMenu {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
-	height: 30px;
-	background: rgb(255,202,29); /* Old browsers */
-	background: -moz-linear-gradient(left, rgba(255,202,29,1) 0%, rgba(255,243,0,1) 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,202,29,1)), color-stop(100%,rgba(255,243,0,1))); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* Opera11.10+ */
-	background: -ms-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffca1d', endColorstr='#fff300',GradientType=1 ); /* IE6-9 */
-	background: linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* W3C */
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  height: 30px;
+  background: rgb(255,202,29); /* Old browsers */
+  background: -moz-linear-gradient(left, rgba(255,202,29,1) 0%, rgba(255,243,0,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,202,29,1)), color-stop(100%,rgba(255,243,0,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffca1d', endColorstr='#fff300',GradientType=1 ); /* IE6-9 */
+  background: linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* W3C */
 }
 .fileBrowserMenuItem {
-	display: inline-block;
-	font-size: 11px;
-	color: #000;
-	margin-left: 9px;
-	margin-top: 5px;
-	padding: 6px;
-	padding-top: 4px;
-	padding-bottom: 4px;
-	cursor: pointer;
+  display: inline-block;
+  font-size: 11px;
+  color: #000;
+  margin-left: 9px;
+  margin-top: 5px;
+  padding: 6px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  cursor: pointer;
 }
 .fileBrowserMenuItem:hover {
-	border: 1px solid rgba(0,0,0,0.8);
-	padding: 5px;
-	padding-top: 3px;
-	padding-bottom: 3px;
-	background: rgba(0,0,0,0.10);
+  border: 1px solid rgba(0,0,0,0.8);
+  padding: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  background: rgba(0,0,0,0.10);
 }
 .fileBrowserMenuItem input {
-	position: absolute;
-	top: 3px;
-	font-size: 11px;
-	padding: 2px;
-	border: 1px solid #1A1A1A;
-	left: 7px;
-	background: rgba(255, 255, 255, .8);
-	color: black;
-	padding-top: 3px;
-	width: 125px;
+  position: absolute;
+  top: 3px;
+  font-size: 11px;
+  padding: 2px;
+  border: 1px solid #1A1A1A;
+  left: 7px;
+  background: rgba(255, 255, 255, .8);
+  color: black;
+  padding-top: 3px;
+  width: 125px;
+}
+#logOutput {
+  position: absolute;
+  right: 220px;
+  top: -303px;
+  z-index: 5;
+  background: black;
+  opacity: 0.95;
+  height: 300px;
+  border: 1px solid #333;
+  width: 500px;
+  overflow: hidden;
+  border-bottom: 0;
+  display: none;
+}
+#logOutputIFrame {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 0px;
+  right: -20px;
+  top: 0px;
+  bottom: 0px;
+  width: 520px;
+  height: 300px;
 }
 /*
 .fileBrowserMenuItem input:focus {
-	outline: 3px solid rgba(255, 255, 255, 0.75);
+  outline: 3px solid rgba(255, 255, 255, 0.75);
 }
 */
 .fileBrowserMenuItem select {
-	position: absolute;
-	left: 143px;
-	top: 5px;
-	width: 45px;
-	border: 1px solid rgba(0, 0, 0, 0.5);
-	border-radius: 0px !important;
-	height: 20px;
-	background: none;
-	border-image: none;
-	-webkit-appearance: none;
-	padding-left: 5px;
-	cursor: pointer;
+  position: absolute;
+  left: 143px;
+  top: 5px;
+  width: 45px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 0px !important;
+  height: 20px;
+  background: none;
+  border-image: none;
+  -webkit-appearance: none;
+  padding-left: 5px;
+  cursor: pointer;
 }
 .fileBrowserMenuItem input[type=submit] {
-	position: absolute;
-	left: 191px;
-	top: 3px;
-	padding-left: 5px;
-	padding-right: 5px;
-	width: auto;
-	cursor: pointer;
-	background: #1A1A1A;
-	color: rgba(255, 255, 0, 0.6);
+  position: absolute;
+  left: 191px;
+  top: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  width: auto;
+  cursor: pointer;
+  background: #1A1A1A;
+  color: rgba(255, 255, 0, 0.6);
 }
 .fileBrowserMenuItem input[type=submit]:hover {
-	color: #FF0;
+  color: #FF0;
 }
 .fileBrowserSection {
-	position: relative;
-	display: inline-block;
-	width: 215px;
-	width: 22%;
-	margin-left: 15px;
-	margin-top: 20px;
+  position: relative;
+  display: inline-block;
+  width: 215px;
+  width: 22%;
+  margin-left: 15px;
+  margin-top: 20px;
 }
 .fileBrowserSectTitle {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	font-size: 9px;
-	color: #B3B3B3;
-	height: 14px;
-	border-bottom: 1px solid #B3B3B3;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  font-size: 9px;
+  color: #B3B3B3;
+  height: 14px;
+  border-bottom: 1px solid #B3B3B3;
 }
 .fileBrowserSectFiles {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 15px;
-	color: rgba(255, 255, 255, 0.5);
-	overflow-y: auto;
-	height: 270px;
-	padding-bottom: 15px;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 15px;
+  color: rgba(255, 255, 255, 0.5);
+  overflow-y: auto;
+  height: 270px;
+  padding-bottom: 15px;
 }
 .fileBrowserSectFiles:hover {
-	background: rgba(0, 0, 0, 0.75);
-	color: rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.75);
+  color: rgba(255, 255, 255, 0.75);
 }
 .fileEntry {
-	display: block;
-	font-size: 11px;
-	padding: 0px;
-	padding-top: 3px;
-	padding-bottom: 2px;
-	padding-left: 15px;
-	cursor: pointer;
-	position: relative;
-	min-height: 24px;
-	margin-right: 2px;
-	border-bottom: 1px solid #111;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  display: block;
+  font-size: 11px;
+  padding: 0px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+  padding-left: 15px;
+  cursor: pointer;
+  position: relative;
+  min-height: 24px;
+  margin-right: 2px;
+  border-bottom: 1px solid #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .fileEntry:hover {
-	color: #FFF;
-	border-left: 1px solid #FFF;
-	padding-left: 14px;
-	background: #080808;
+  color: #FFF;
+  border-left: 1px solid #FFF;
+  padding-left: 14px;
+  background: #080808;
 }
 .fileEntryDir {
-	display: block;
-	opacity: 0.4;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	margin-right: 30px;
+  display: block;
+  opacity: 0.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 30px;
 }
 .fileEntryUsers {
-	position: absolute;
-	left: 2px;
-	top: 2px;
-	color: #CC0;
-	font-size: 9px;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  color: #CC0;
+  font-size: 9px;
 }
 .fileEntrySize {
-	position: absolute;
-	right: 2px;
-	top: 2px;
-	color: #555;
-	font-size: 9px;
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  color: #555;
+  font-size: 9px;
 }
 .otherCursor {
-	height: 14px; 
-	visibility: visible; 
-	border-left: 2px solid #3FF !important; 
-	opacity: 0.8;
-	cursor: pointer; 
-	padding-right: 8px; 
-	background: rgba(0, 0, 0, 0.2);
+  height: 14px; 
+  visibility: visible; 
+  border-left: 2px solid #3FF !important; 
+  opacity: 0.8;
+  cursor: pointer; 
+  padding-right: 8px; 
+  background: rgba(0, 0, 0, 0.2);
 }
 .collab_cursor_old {
-	position: absolute;
-	z-index: 5;
-	border-left: 2px solid #FF0;
-	margin-left: -1px;
-	right: 5px;
-	text-align: right;
-	color: #FF0;
-	border-bottom: 1px dashed #333;
+  position: absolute;
+  z-index: 5;
+  border-left: 2px solid #FF0;
+  margin-left: -1px;
+  right: 5px;
+  text-align: right;
+  color: #FF0;
+  border-bottom: 1px dashed #333;
 }
 .collab_cursor_nametag_old {
-	position: absolute;
-	top: -16px;
-	left: -2px;
-	text-align: right;
-	color: black;
-	background: yellow;
-	padding: 1px;
-	padding-left: 3px;
-	padding-right: 3px;
-	opacity: 0.4;
+  position: absolute;
+  top: -16px;
+  left: -2px;
+  text-align: right;
+  color: black;
+  background: yellow;
+  padding: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+  opacity: 0.4;
 }
 .collab_cursor {
-	position: absolute;
-	z-index: 5;
-	border-left: 2px solid #0FF;
-	margin-left: -1px;
-	right: 210px;
-	text-align: right;
-	color: #FF0;
-	border-bottom: 1px dotted rgba(0, 255, 255, 0.3);
+  position: absolute;
+  z-index: 5;
+  border-left: 2px solid #0FF;
+  margin-left: -1px;
+  right: 210px;
+  text-align: right;
+  color: #FF0;
+  border-bottom: 1px dotted rgba(0, 255, 255, 0.3);
 }
 .collab_cursor_nametag {
-	position: absolute;
-	bottom: -1px;
-	right: 0px;
-	text-align: right;
-	color: black;
-	background: #00FFFF;
-	padding: 0px;
-	padding-left: 3px;
-	padding-right: 3px;
-	opacity: 1;
-	font-family: Arial, sans-serif;
-	font-weight: 600;
-	pointer-events: auto;
-	cursor: help;
+  position: absolute;
+  bottom: -1px;
+  right: 0px;
+  text-align: right;
+  color: black;
+  background: #00FFFF;
+  padding: 0px;
+  padding-left: 3px;
+  padding-right: 3px;
+  opacity: 1;
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+  pointer-events: auto;
+  cursor: help;
 }
 .collab_cursor_nametagFlag {
-	position: absolute;
-	top: 6px;
-	left: -6px;
-	width: 0px;
-	height: 0px;
-	border: 3px solid rgba(0, 255, 255, 0.0);
-	border-right: 3px solid rgba(0, 255, 255, 1);
-	border-bottom: 3px solid rgba(0, 255, 255, 1);
+  position: absolute;
+  top: 6px;
+  left: -6px;
+  width: 0px;
+  height: 0px;
+  border: 3px solid rgba(0, 255, 255, 0.0);
+  border-right: 3px solid rgba(0, 255, 255, 1);
+  border-bottom: 3px solid rgba(0, 255, 255, 1);
 }
 .collab_selection {
-	position: absolute;
-	z-index: 5;
-	background: rgba(128, 128, 255, 0.1);
+  position: absolute;
+  z-index: 5;
+  background: rgba(128, 128, 255, 0.1);
 }
 #shiftshift {
-	position: absolute;
-	left: 50%;
-	top: 40%;
-	margin-left: -200px;
-	width: 400px;
-	margin-top: -45px;
-	height: 90px;
-	z-index: 9999999;
-	background: rgba(0,0,0,0.90);
-	border: 1px solid #00ACED;
-	display: none;
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  margin-left: -200px;
+  width: 400px;
+  margin-top: -45px;
+  height: 90px;
+  z-index: 9999999;
+  background: rgba(0,0,0,0.90);
+  border: 1px solid #00ACED;
+  display: none;
 }
 #shiftshiftTitle {
-	position: absolute;
-	left: 10px;
-	top: 15px;
-	font-size: 11px;
-	color: #FFF;
-	letter-spacing: 1px;
+  position: absolute;
+  left: 10px;
+  top: 15px;
+  font-size: 11px;
+  color: #FFF;
+  letter-spacing: 1px;
 }
 #shiftshiftFilename {
-	position: absolute;
-	left: 10px;
-	top: 40px;
-	font-size: 28px;
-	color: #FFF;
+  position: absolute;
+  left: 10px;
+  top: 40px;
+  font-size: 28px;
+  color: #FFF;
 }
 #shiftshiftFilename span{
-	font-size: 12px;
-	color: rgba(255, 255, 255, 1);
-	padding-left: 2px;
-	letter-spacing: 1px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 1);
+  padding-left: 2px;
+  letter-spacing: 1px;
 }
 #shiftshiftInputDiv {
-	position: absolute;
-	left: 10px;
-	bottom: 10px;
-	right: 10px;
-	height: 33px;
-	background: #1A1A1A;
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  right: 10px;
+  height: 33px;
+  background: #1A1A1A;
 }
 #shiftshiftInputDiv input {
-	position: absolute;
-	left: 5px;
-	top: 0px;
-	right: 10px;
-	bottom: 0px;
-	font-size: 13px;
-	color: #FFF;
-	background: none;
-	border: none;
+  position: absolute;
+  left: 5px;
+  top: 0px;
+  right: 10px;
+  bottom: 0px;
+  font-size: 13px;
+  color: #FFF;
+  background: none;
+  border: none;
 }
 #shiftshiftInputDiv input:focus {
     outline: none;
 }
 .shiftshiftBtn {
-	position: absolute;
-	bottom: 10px;
-	border: 1px solid white;
-	cursor: pointer;
-	font-size: 13px;
-	height: 23px;
-	width: 183px;
-	color: white;
-	text-align: center;
-	padding-top: 8px;
+  position: absolute;
+  bottom: 10px;
+  border: 1px solid white;
+  cursor: pointer;
+  font-size: 13px;
+  height: 23px;
+  width: 183px;
+  color: white;
+  text-align: center;
+  padding-top: 8px;
 }
 #shiftshiftBtn_Cancel {
-	left: 10px;
+  left: 10px;
 }
 #shiftshiftBtn_Cancel:hover {
-	color: #000;
-	background: #FFF;
+  color: #000;
+  background: #FFF;
 }
 #shiftshiftBtn_Delete {
-	right: 10px;
-	background-image: none;
-	background-position: 0px 0px;
+  right: 10px;
+  background-image: none;
+  background-position: 0px 0px;
 }
 #shiftshiftBtn_Delete:hover {
-	border-color: #FF3600;
-	background-image: url("./png/delete_ptrn.png");
-	background-position: 2000px 0px;
-	background-repeat: repeat;
-	-webkit-transition: background-position 100s linear;
+  border-color: #FF3600;
+  background-image: url("./png/delete_ptrn.png");
+  background-position: 2000px 0px;
+  background-repeat: repeat;
+  -webkit-transition: background-position 100s linear;
 }
 #shiftshiftBtn_Delete:hover:before {
-	content: "\00D7\00D7\00D7\0020";
+  content: "\00D7\00D7\00D7\0020";
 }
 #shiftshiftBtn_Delete:hover:after {
-	content: "\0020\00D7\00D7\00D7";
+  content: "\0020\00D7\00D7\00D7";
 }
 
 #hud {
-	position: absolute;
-	right: 15px;
-	bottom: 40px;
-	width: 200px;
-	height: 200px;
-	background: rgba(0,0,0,0.85);
-	z-index: 10;
-	display: none;
+  position: absolute;
+  right: 15px;
+  bottom: 40px;
+  width: 200px;
+  height: 200px;
+  background: rgba(0,0,0,0.85);
+  z-index: 10;
+  display: none;
 }
 #hudTitle {
-	position: absolute;
-	top: 5px;
-	left: 5px;
-	font-size: 11px;
-	color: #555;
-	z-index: 1000;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 11px;
+  color: #555;
+  z-index: 1000;
 }
 #hudClose {
-	position: absolute;
-	top: 3px;
-	right: 6px;
-	font-size: 16px;
-	color: #555;
-	cursor: pointer;
-	z-index: 1000;
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+  z-index: 1000;
 }
 #hudData {
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	right: 0px;
-	bottom: 0px;
-	z-index: 1;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 1;
 }
 #hudData_UserCount {
-	position: absolute;
-	left: 5px;
-	top: 25px;
-	font-size: 14px;
-	font-weight: 600;
-	color: #F0F;
-	opacity: 0.3;
+  position: absolute;
+  left: 5px;
+  top: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #F0F;
+  opacity: 0.3;
 }
 #hudData_ByteCount {
-	position: absolute;
-	right: 5px;
-	top: 25px;
-	font-size: 14px;
-	font-weight: 600;
-	color: #F0F;
-	opacity: 0.3;
+  position: absolute;
+  right: 5px;
+  top: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #F0F;
+  opacity: 0.3;
 }
 #hudData_TreeMap {
-	position: absolute;
-	left: 2px;
-	top: 52px;
-	right: 2px;
-	bottom: 2px;
-	overflow: hidden;
+  position: absolute;
+  left: 2px;
+  top: 52px;
+  right: 2px;
+  bottom: 2px;
+  overflow: hidden;
 }
 .treemapBlock {
-	position: absolute;
-	background: #3B5663;
-	opacity: 0.6;
-	cursor: pointer;
-	text-align: center;
-	font-size: 8px;
-	color: #000;
-	overflow: hidden;
-	z-index: 1;
+  position: absolute;
+  background: #3B5663;
+  opacity: 0.6;
+  cursor: pointer;
+  text-align: center;
+  font-size: 8px;
+  color: #000;
+  overflow: hidden;
+  z-index: 1;
 }
 .treemapBlock:hover {
-	opacity: 0.9;
-	z-index: 2;
-	box-shadow: 0px 0px 4px #000;
+  opacity: 0.9;
+  z-index: 2;
+  box-shadow: 0px 0px 4px #000;
 }
 .treemapBlock_1 {
-	background: #C0A050;
+  background: #C0A050;
 }
 .treemapBlock_2 {
-	background: #D09050;
+  background: #D09050;
 }
 .treemapBlock_3 {
-	background: #E08050;
+  background: #E08050;
 }
 .treemapBlock_4 {
-	background: #FF7050;
+  background: #FF7050;
 }
 .treemapBlock_5 {
-	background: #FF3030;
+  background: #FF3030;
 }
 
 /*
  * Right click menu...
  */
 .rightClickContainer {
-	z-index: 999999;
-	cursor: default;
-	background: #FFF;
-	padding: 5px;
-	font-size: 12px;
+  z-index: 999999;
+  cursor: default;
+  background: #FFF;
+  padding: 5px;
+  font-size: 12px;
 }
 .rightClickMarker {
-	z-index: 999998;
-	cursor: default;
-	border: 2px solid rgba(255, 255, 0, 0.5);
-	width: 8px;
-	height: 8px;
-	margin-left: -3px;
-	margin-top: -3px;
-	border-radius: 10px;
+  z-index: 999998;
+  cursor: default;
+  border: 2px solid rgba(255, 255, 0, 0.5);
+  width: 8px;
+  height: 8px;
+  margin-left: -3px;
+  margin-top: -3px;
+  border-radius: 10px;
 }
 .rightClickCornerCut {
-	position: absolute;
-	right: 0px;
-	top: 0px;
-	width: 0px;
-	height: 0px;
-	border: 7px solid #000;
-	border-bottom: 7px solid rgba(0,0,0,0);
-	border-left: 7px solid rgba(0,0,0,0);
-	z-index: 100;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 0px;
+  height: 0px;
+  border: 7px solid #000;
+  border-bottom: 7px solid rgba(0,0,0,0);
+  border-left: 7px solid rgba(0,0,0,0);
+  z-index: 100;
 }
 .rightClickItem {
-	color: #000;
+  color: #000;
 }
 .rightClickItemSpacer {
-	margin-left: 5px;
-	border-bottom: 1px dotted black;
-	padding-top: 0px;
-	margin-bottom: 4px;
-	padding-bottom: 4px;
-	margin-right: 4px;
+  margin-left: 5px;
+  border-bottom: 1px dotted black;
+  padding-top: 0px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  margin-right: 4px;
 }
 .rightClickItemEl {
-	position: relative;
-	cursor: pointer;
-	padding: 5px;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	padding-right: 35px;
+  position: relative;
+  cursor: pointer;
+  padding: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 35px;
 }
 .rightClickItemEl:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }

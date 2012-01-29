@@ -494,6 +494,11 @@ now.c_processMessage        = function(scope, type, message, fromUserId, fromUse
   var msg = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   notifyAndAddMessageToLog(userColor, fromUserName, msg);
 }
+now.c_confirmProject        = function(teamID){
+  now.teamID = teamID;
+  console.log("PROJECT: " + now.teamID);
+  $("#topProjName").html(teamID);
+}
 // ---------------------------------------------------------
 // Main functions...
 // ---------------------------------------------------------
@@ -915,7 +920,11 @@ function autoFoldCode(){
         if(matchPos != null){
           var range = new Range(r, iBracket+1, matchPos.row, matchPos.column);
           //console.log(range);
-          editor.session.addFold(" ... ", range);
+          try {
+            editor.session.addFold(" ... ", range);
+          }catch(ex){
+            console.log("AutoFold Exception: " + ex);
+          }
           //console.log(matchPos);
           r = matchPos.row;
           continue;
@@ -1219,6 +1228,21 @@ function updateHUD(){
   html += "<div id='hudData_UserCount'>"+mostRecentTotalUserCount+" player"+plural+"</div>";
   html += "<div id='hudData_ByteCount'>"+Math.floor(totalProjectBytes/1024)+"k bytes</div>";
   $("#hudData").html(html);
+  
+}
+// ---------------------------------------------------------
+// LOG OUTPUT / CONSOLE
+// ---------------------------------------------------------
+function toggleLogOutput(){
+  if($("#logOutput").is(":visible")){
+    // close it.
+    $("#logOutput").hide();
+    $("#topMenu_OUT").removeClass("topMenuItemOpen");
+  }else{
+    // open it.
+    $("#logOutput").show();
+    $("#topMenu_OUT").addClass("topMenuItemOpen");
+  }
 }
 // ---------------------------------------------------------
 // Launch!
@@ -1321,6 +1345,9 @@ now.ready(function(){
   });
   console.log(now);
   $("#whoIAm").html("Hello, <b>"+now.name+"</b>");
+  setTimeout(function(){
+    $("#logOutputIFrame").attr("src", "http://logs.chaoscollective.org/live?log="+now.teamID); 
+  }, 1000);
   toggleHUD();
 });
 $(window).ready(function() {
@@ -1331,6 +1358,13 @@ $(window).ready(function() {
     getName = "#"+Math.floor(Math.random()*10000);
   }
   now.name = getName;
+  
+  var getProject = getURLGetVariable("project");
+  if(getProject){
+    now.teamID = getProject;
+  }else{
+    now.teamID = '';
+  }
   
   $("#whoIAm").html("Authenticating...");
   
@@ -1422,6 +1456,8 @@ $(window).ready(function() {
     }
     cursorChangeTimeout = setTimeout(ifOnlineLetCollaboratorsKnowImHere, 350);
   });
+  
+  editor.getSession().setFoldStyle("markbeginend");
   
   console.log("starting...");
   

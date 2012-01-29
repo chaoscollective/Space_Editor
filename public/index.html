@@ -8,42 +8,43 @@
 </head>
 <body>
 <div id="bottom">
-	<div id="filebrowserButton" onclick='toggleFileBrowser();'></div>
-	<div id="fileHistory">
-		<div class="openFileHeader" id='recentFile_0'></div>
-		<div class="openFileHeader" id='recentFile_1' style='opacity: 0.5;'  onclick='safelyOpenFileFromEntry(this);'></div>
-		<div class="openFileHeader" id='recentFile_2' style='opacity: 0.25;' onclick='safelyOpenFileFromEntry(this);'></div>
-		<div class="openFileHeader" id='recentFile_3' style='opacity: 0.25;' onclick='safelyOpenFileFromEntry(this);'></div>
-		<div id="dataStatBlock"></div>
-	</div>
-	<div id="preflightButton" onclick='openShiftShiftAsCommit();'>COMMIT</div>
-	<div id="launchButton" onclick='launchProject();'>LAUNCH</div>
+  <div id="filebrowserButton" onclick='toggleFileBrowser();'></div>
+  <div id="fileHistory">
+    <div class="openFileHeader" id='recentFile_0'></div>
+    <div class="openFileHeader" id='recentFile_1' style='opacity: 0.5;'  onclick='safelyOpenFileFromEntry(this);'></div>
+    <div class="openFileHeader" id='recentFile_2' style='opacity: 0.25;' onclick='safelyOpenFileFromEntry(this);'></div>
+    <div class="openFileHeader" id='recentFile_3' style='opacity: 0.25;' onclick='safelyOpenFileFromEntry(this);'></div>
+    <div id="dataStatBlock"></div>
+  </div>
+  <div id='logOutput'><iframe id='logOutputIFrame'></iframe></div>
+  <div id="preflightButton" onclick='openShiftShiftAsCommit();'>COMMIT</div>
+  <div id="launchButton" onclick='launchProject();'>LAUNCH</div>
 </div>
 <div id="fileBrowser">
-	<div id='fileBrowserMenu'>
-		<div class='fileBrowserMenuItem' onclick='createNewFile(this);'>New File...</div>
-	</div>
-	<div class='fileBrowserSection'>
-		<div class='fileBrowserSectTitle'>MEDIA</div>
-		<div class='fileBrowserSectFiles' id='fileBrowser_Media'></div>
-	</div>
-	<div class='fileBrowserSection'>
-		<div class='fileBrowserSectTitle'>HTML</div>
-		<div class='fileBrowserSectFiles' id='fileBrowser_HTML'></div>
-	</div>
-	<div class='fileBrowserSection'>
-		<div class='fileBrowserSectTitle'>CSS</div>
-		<div class='fileBrowserSectFiles' id='fileBrowser_CSS'></div>
-	</div>
-	<div class='fileBrowserSection'>
-		<div class='fileBrowserSectTitle'>JS</div>
-		<div class='fileBrowserSectFiles' id='fileBrowser_JS'></div>
-	</div>
+  <div id='fileBrowserMenu'>
+    <div class='fileBrowserMenuItem' onclick='createNewFile(this);'>New File...</div>
+  </div>
+  <div class='fileBrowserSection'>
+    <div class='fileBrowserSectTitle'>MEDIA</div>
+    <div class='fileBrowserSectFiles' id='fileBrowser_Media'></div>
+  </div>
+  <div class='fileBrowserSection'>
+    <div class='fileBrowserSectTitle'>HTML</div>
+    <div class='fileBrowserSectFiles' id='fileBrowser_HTML'></div>
+  </div>
+  <div class='fileBrowserSection'>
+    <div class='fileBrowserSectTitle'>CSS</div>
+    <div class='fileBrowserSectFiles' id='fileBrowser_CSS'></div>
+  </div>
+  <div class='fileBrowserSection'>
+    <div class='fileBrowserSectTitle'>JS</div>
+    <div class='fileBrowserSectFiles' id='fileBrowser_JS'></div>
+  </div>
 </div>
 
 <div id='shiftshift'>
-	<div id='shiftshiftTitle'>BROADCAST</div>
-	<div id='shiftshiftInputDiv'><input type='text' onkeydown='return shiftshiftKeydown(event);'/></div>
+  <div id='shiftshiftTitle'>BROADCAST</div>
+  <div id='shiftshiftInputDiv'><input type='text' onkeydown='return shiftshiftKeydown(event);'/></div>
 </div>
 <div id='logWindow'><div id='logWindowCaret'></div><div id='logWindowContent'></div></div>
 <div id='hud'><div id='hudTitle'>HUD</div><div id='hudClose' onclick='toggleHUD();'>&times;</div><div id='hudData'></div></div>
@@ -51,14 +52,16 @@
 <pre id="editor"></pre>
     
 <div id="top">
-	<div id="whoIAm"></div>
-	<div id="whoAreThey" title="No one else is collaborating">0</div>
-	<div id='notifications'></div>
-	<div id='topMenu'>
-		<div class='topMenuItem' id='topMenu_CMD' onclick='toggleShiftShift();'><span>C</span>MD</div>
-		<div class='topMenuItem' id='topMenu_HUD' onclick='toggleHUD();'><span>H</span>UD</div>
-		<div class='topMenuItem' id='topMenu_LOG' onclick='toggleLog();'><span>L</span>OG</div>
-	</div>
+  <div id='topProjName'></div>
+  <div id="whoIAm"></div>
+  <div id="whoAreThey" title="No one else is collaborating">0</div>
+  <div id='notifications'></div>
+  <div id='topMenu'>
+    <div class='topMenuItem' id='topMenu_CMD' onclick='toggleShiftShift();'><span>C</span>MD</div>
+    <div class='topMenuItem' id='topMenu_HUD' onclick='toggleHUD();'><span>H</span>UD</div>
+    <div class='topMenuItem' id='topMenu_LOG' onclick='toggleLog();'><span>L</span>OG</div>
+    <div class='topMenuItem' id='topMenu_OUT' onclick='toggleLogOutput();'><span>O</span>UT</div>
+  </div>
 </div>
 
 
