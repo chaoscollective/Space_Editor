@@ -428,6 +428,9 @@ now.c_processUserFileEvent  = function(fname, event, fromUserId, usersInFile, se
   console.log("UserFileEvent: " + event + " >> " + fname + " >> " + uName + ", usersInFile: " + usersInFile);
   if(event == "joinFile"){
     setUsersInFile(fname, usersInFile);
+    var userColor = userColorMap[fromUserId%userColorMap.length];
+    notifyAndAddMessageToLog(userColor, uName, "joined file: <div class='itemType_fileAction'>"+fname+"</div>");
+    console.log("added notify for joinFile");
   }
   if(event == "leaveFile"){
     setUsersInFile(fname, usersInFile);
@@ -532,8 +535,8 @@ function sendTextChange(){
   now.s_sendDiffPatchesToCollaborators(infile, patches, md5);
   return true;
 }
-function openFileFromServer(fname){
-  if(infile == fname){
+function openFileFromServer(fname, forceOpen){
+  if(infile == fname && (!forceOpen)){
     console.log("file is already open.");
     return;
   }
@@ -595,15 +598,15 @@ function openFileFromServer(fname){
     }
     removeAllCollaborators();
     var f = infile;
-    if(f.indexOf(".js") > 0 && f.indexOf(".js") == f.length-3){
+    if(fileHasExtention(f, ".js")){
       console.log("setting mode to: JavaScript");
       editor.getSession().setMode(new JavaScriptMode());
     }else{
-      if(f.indexOf(".css") > 0 && f.indexOf(".css") == f.length-4){
+      if(fileHasExtention(f, ".css") || fileHasExtention(f, ".less")  || fileHasExtention(f, ".styl") ){
         console.log("setting mode to: CSS");
         editor.getSession().setMode(new CSSMode());
       }else{
-        if(f.indexOf(".html") > 0 && f.indexOf(".html") == f.length-5){
+        if(fileHasExtention(f, ".html")){
           console.log("setting mode to: HTML");
           editor.getSession().setMode(new HTMLMode());
         }else{
@@ -619,6 +622,10 @@ function openFileFromServer(fname){
   initialFileloadTimeout = null;
   setFileStatusIndicator("unknown");
 }
+function fileHasExtention(f, ext){
+  return ((f.indexOf(ext) > 0 && f.indexOf(ext) == f.length-ext.length));
+}
+
 var mostRecentFilesAndInfo   = [];
 var mostRecentTotalUserCount = 1;
 function safelyOpenFileFromEntry(el){
@@ -765,13 +772,13 @@ function updateFileBrowserFromFileList(filesAndInfo){
       styledFile = "<div class='fileEntryDir'>"+f.substring(0, f.lastIndexOf("/")+1) +"</div> "+ f.substring(f.lastIndexOf("/")+1);
     }
     // put into type folders...
-    if(f.indexOf(".js") > 0 && f.indexOf(".js") == f.length-3){
+    if(fileHasExtention(f, ".js")){
       jsHTML += "<div class='fileEntry' onclick='safelyOpenFileFromEntry(this);' fname='"+f+"'>"+styledFile+uAddon+szAddon+"</div>";
     }else{
-      if(f.indexOf(".css") > 0 && f.indexOf(".css") == f.length-4){
+      if(fileHasExtention(f, ".css") || fileHasExtention(f, ".less") || fileHasExtention(f, ".styl")){
         cssHTML += "<div class='fileEntry' onclick='safelyOpenFileFromEntry(this);' fname='"+f+"'>"+styledFile+uAddon+szAddon+"</div>";
       }else{
-        if(f.indexOf(".html") > 0 && f.indexOf(".html") == f.length-5){
+        if(fileHasExtention(f, ".html")){
           htmlHTML += "<div class='fileEntry' onclick='safelyOpenFileFromEntry(this);' fname='"+f+"'>"+styledFile+uAddon+szAddon+"</div>";
         }else{
           mediaHTML += "<div class='fileEntry' onclick='safelyOpenFileFromEntry(this);' fname='"+f+"'>"+styledFile+uAddon+szAddon+"</div>";
@@ -854,12 +861,12 @@ function openFileBrowser(){
 }
 function createNewFile(el){
   if($(el).html() == "New File..."){
-    $(el).html("New File...<input id='newfileInputName' type='text' onkeydown='if(event.keyCode==13){createNewFileFromInputs();}if(event.keyCode==27){$(this).parent().html(\"New File...\");}'/><select id='newfileInputType'><option>.js</option><option>.css</option><option>.html</option><option>.txt</option></select><input type='submit' value='ok' onclick='createNewFileFromInputs(); event.stopPropagation();' />");
+    $(el).html("New File...<input id='newfileInputName' type='text' onkeydown='if(event.keyCode==13){createNewFileFromInputs();}if(event.keyCode==27){$(this).parent().html(\"New File...\");}'/><select id='newfileInputType'><option>.js</option><option>.css</option><option>.html</option><option>.txt</option><option>.styl</option><option>.less</option></select><input type='submit' value='ok' onclick='createNewFileFromInputs(); event.stopPropagation();' />");
     $("#newfileInputName").focus();
   }
 }
 function createNewFileFromInputs(){  
-  var newfname = $("#newfileInputName").val().replace(/\ /g, "_").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
+  var newfname = $("#newfileInputName").val().replace(/\ /g, "_").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var newftype = $("#newfileInputType").val();
   if(newfname.length > 20){
     alert("invalid file name. it's too long. :(");
@@ -1258,7 +1265,7 @@ function launchProject(){
       window.open(launchURL,'CHAOS_APP_LAUNCH_'+pageLoadID);
     }
   });
-}
+} 
 // ---------------------------------------------------------
 // URL manipulation.
 // ---------------------------------------------------------
@@ -1326,9 +1333,9 @@ now.ready(function(){
   setInterval(ifOnlineLetCollaboratorsKnowImHere, TIME_UNTIL_GONE/3);
   var specifiedFileToOpen = getURLHashVariable("fname");
   if(specifiedFileToOpen){
-    openFileFromServer(specifiedFileToOpen);
+    openFileFromServer(specifiedFileToOpen, true);
   }else{
-    openFileFromServer("app.js");
+    openFileFromServer("app.js", true);
   }
   now.s_getAllProjectsFiles(function(err, filesAndInfo){
     updateFileBrowserFromFileList(filesAndInfo);
@@ -1347,8 +1354,9 @@ now.ready(function(){
   $("#whoIAm").html("Hello, <b>"+now.name+"</b>");
   setTimeout(function(){
     $("#logOutputIFrame").attr("src", "http://logs.chaoscollective.org/live?log="+now.teamID); 
+    document.title = now.teamID;
   }, 1000);
-  toggleHUD();
+  //toggleHUD();
 });
 $(window).ready(function() {
   

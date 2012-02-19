@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <title>Editor</title>
-  <link href="index.css" rel="stylesheet" type="text/css" />
+  <title>_______</title> 
+  <link href="index.css"  rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/png" href="/png/favicon.png"> 
 </head>
 <body>
 <div id="bottom">
@@ -16,10 +17,10 @@
     <div class="openFileHeader" id='recentFile_3' style='opacity: 0.25;' onclick='safelyOpenFileFromEntry(this);'></div>
     <div id="dataStatBlock"></div>
   </div>
-  <div id='logOutput'><iframe id='logOutputIFrame'></iframe></div>
   <div id="preflightButton" onclick='openShiftShiftAsCommit();'>COMMIT</div>
   <div id="launchButton" onclick='launchProject();'>LAUNCH</div>
 </div>
+<div id='logOutput'><iframe id='logOutputIFrame'></iframe></div>
 <div id="fileBrowser">
   <div id='fileBrowserMenu'>
     <div class='fileBrowserMenuItem' onclick='createNewFile(this);'>New File...</div>
@@ -56,6 +57,7 @@
   <div id="whoIAm"></div>
   <div id="whoAreThey" title="No one else is collaborating">0</div>
   <div id='notifications'></div>
+  <a href='http://space.chaoscollective.org'><div id='topSpaceLink'>&#8592; BACK TO SPACE</div></a>
   <div id='topMenu'>
     <div class='topMenuItem' id='topMenu_CMD' onclick='toggleShiftShift();'><span>C</span>MD</div>
     <div class='topMenuItem' id='topMenu_HUD' onclick='toggleHUD();'><span>H</span>UD</div>

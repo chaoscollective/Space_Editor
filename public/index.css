@@ -1,17 +1,20 @@
+/*
+// NOTE: Do not edit this CSS file directly. It is generated automatically on LAUNCH.
+// Edit the Stylus file (index.styl) instead... :) 
+*/
+
 @font-face {
   font-family: "Inconsolata";
   src: url("./fonts/Inconsolata.otf");
 }
-
 body {
-    overflow: hidden;
+  overflow: hidden;
   margin: 0;
   font-family: Arial, sans-serif;
 }
-
 ::-webkit-scrollbar-thumb {
   border: 2px solid #000;
-  background: rgb(40, 42, 46);
+  background: #282a2e;
   border-radius: 0px;
 }
 ::-webkit-scrollbar {
@@ -23,7 +26,6 @@ body {
   width: 100%;
   height: 100%;
 }
-
 .ace_scroller {
   overflow-x: hidden !important;
 }
@@ -42,8 +44,8 @@ body {
   right: 0px;
   top: 0px;
   height: 34px;
-  background: url("./png/header_ptrn.png") top left repeat #CCC;
-  border-bottom: 1px solid #282A2E;
+  background: #eee;
+  border-bottom: 1px solid #282a2e;
 }
 #notifications {
   position: absolute;
@@ -55,14 +57,14 @@ body {
 }
 .notificationItem {
   background: rgba(0,0,0,0.85);
-  color: #FFF;
+  color: #fff;
   font-size: 11px;
   padding: 10px;
-  border-top: 1px solid #FFF;
+  border-top: 1px solid #fff;
   margin-bottom: 4px;
 }
 .notificationItem span {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255,255,255,0.50);
 }
 #topMenu {
   position: absolute;
@@ -77,7 +79,7 @@ body {
   padding-right: 6px;
   padding-left: 6px;
   font-size: 11px;
-  color: #1A1A1A;
+  color: #1a1a1a;
   cursor: pointer;
   margin: 9px;
   margin-left: 2px;
@@ -87,15 +89,15 @@ body {
   text-decoration: underline;
 }
 .topMenuItemOpen {
-  background: #1A1A1A;
-  color: rgba(255, 255, 255, 0.98);
+  background: #1a1a1a;
+  color: rgba(255,255,255,0.98);
 }
 #logWindow {
   position: absolute;
   right: 15px;
   top: 35px;
   width: 200px;
-  background: rgba(0, 0, 0, 1);
+  background: #000;
   z-index: 10;
   display: none;
   bottom: 350px;
@@ -105,7 +107,7 @@ body {
   top: -12px;
   right: 86px;
   border: 6px solid transparent;
-  border-bottom: 6px solid black;
+  border-bottom: 6px solid #000;
 }
 #logWindowContent {
   position: absolute;
@@ -117,8 +119,8 @@ body {
 }
 .logItem {
   position: relative;
-  background: rgba(0, 0, 0, 0.85);
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0,0,0,0.85);
+  color: rgba(255,255,255,0.80);
   font-size: 10px;
   padding: 0;
   margin-bottom: 4px;
@@ -132,22 +134,22 @@ body {
   left: 0px;
   width: 50px;
   height: 0px;
-  border-top: 1px solid white;
+  border-top: 1px solid #fff;
 }
 .logItem span {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255,255,255,0.50);
 }
 /* special types for notifications and log */
 .itemType_fileAction {
   display: block;
-  color: rgba(255, 255, 0, 0.8);
+  color: rgba(255,255,0,0.80);
   font-family: monospace;
   font-size: 11px;
   text-align: right;
 }
 .itemType_projectAction {
   display: block;
-  color: rgba(255, 0, 255, 0.8);
+  color: rgba(255,0,255,0.80);
   font-family: Arial, sans-serif;
   font-size: 11px;
   text-align: right;
@@ -159,23 +161,37 @@ body {
   top: 2px;
   font-size: 26px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(0,0,0,0.40);
   text-align: center;
   right: 2px;
 }
-
-#editor { 
+#topSpaceLink {
+  position: absolute;
+  font-size: 10px;
+  z-index: 1000;
+  cursor: pointer;
+  color: #000;
+  text-shadow: 0px 0px 7px #fff;
+  text-decoration: none;
+  left: 20px;
+  top: 5px;
+  letter-spacing: 1px;
+}
+#topSpaceLink span {
+  letter-spacing: 4px;
+}
+#editor {
   margin: 0px;
-    position: absolute;
-    top: 35px;
-    bottom: 36px;
-    left: 0px;
-    right: 0px;
+  position: absolute;
+  top: 35px;
+  bottom: 36px;
+  left: 0px;
+  right: 0px;
   font-size: 11px;
   line-height: 12px;
-  /*font-family: 'Courier New', 'Courier', monospaced;*/
+/*font-family: 'Courier New', 'Courier', monospaced;*/
   font-family: "Inconsolata", "Courier New", monospace;
-  /*-webkit-font-smoothing: antialiased;*/
+/*-webkit-font-smoothing: antialiased;*/
 }
 #whoIAm {
   font-family: Arial, sans-serif;
@@ -196,7 +212,7 @@ body {
   font-size: 11px;
   text-align: center;
   padding-top: 4px;
-  color: white;
+  color: #fff;
   cursor: pointer;
 }
 #dataStatBlock {
@@ -216,7 +232,7 @@ body {
   height: 23px;
   width: 85px;
   letter-spacing: 3px;
-  color: white;
+  color: #fff;
   font-size: 11px;
   padding-top: 11px;
   cursor: pointer;
@@ -224,7 +240,7 @@ body {
   opacity: 0.5;
 }
 #preflightButton:hover {
-  opacity: 1.0;
+  opacity: 1;
 }
 #launchButton {
   position: absolute;
@@ -234,7 +250,7 @@ body {
   height: 23px;
   width: 83px;
   letter-spacing: 3px;
-  color: white;
+  color: #fff;
   font-size: 11px;
   padding-top: 11px;
   cursor: pointer;
@@ -242,10 +258,10 @@ body {
   opacity: 0.5;
 }
 #launchButton:hover {
-  opacity: 1.0;
+  opacity: 1;
 }
 #filebrowserButton {
-  position:absolute;
+  position: absolute;
   top: 0px;
   left: 10px;
   width: 34px;
@@ -265,7 +281,7 @@ body {
   position: relative;
   display: inline-block;
   font-size: 11px;
-  color: #FFF;
+  color: #fff;
   padding: 11px;
   margin-right: 2px;
   opacity: 0.98;
@@ -278,9 +294,9 @@ body {
   height: 350px;
   left: 0px;
   right: 0px;
-  background: rgba(0, 0, 0, 0.90);
+  background: rgba(0,0,0,0.90);
   z-index: 1000;
-  border-top: 1px solid rgb(102, 102, 102);
+  border-top: 1px solid #666;
 }
 #fileBrowserMenu {
   position: absolute;
@@ -288,14 +304,20 @@ body {
   right: 0px;
   bottom: 0px;
   height: 30px;
-  background: rgb(255,202,29); /* Old browsers */
-  background: -moz-linear-gradient(left, rgba(255,202,29,1) 0%, rgba(255,243,0,1) 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,202,29,1)), color-stop(100%,rgba(255,243,0,1))); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* IE10+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffca1d', endColorstr='#fff300',GradientType=1 ); /* IE6-9 */
-  background: linear-gradient(left, rgba(255,202,29,1) 0%,rgba(255,243,0,1) 100%); /* W3C */
+  background: #ffca1d;
+/* Old browsers */
+  background: -moz-linear-gradient(left, #ffca1d 0%, #fff300 100%);
+/* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, #ffca1d), color-stop(100%, #fff300));
+/* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left, #ffca1d 0%, #fff300 100%);
+/* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left, #ffca1d 0%, #fff300 100%);
+/* Opera11.10+ */
+  background: -ms-linear-gradient(left, #ffca1d 0%, #fff300 100%);
+/* IE10+ */
+  background: linear-gradient(left, #ffca1d 0%, #fff300 100%);
+/* W3C */
 }
 .fileBrowserMenuItem {
   display: inline-block;
@@ -309,7 +331,7 @@ body {
   cursor: pointer;
 }
 .fileBrowserMenuItem:hover {
-  border: 1px solid rgba(0,0,0,0.8);
+  border: 1px solid rgba(0,0,0,0.80);
   padding: 5px;
   padding-top: 3px;
   padding-bottom: 3px;
@@ -320,19 +342,19 @@ body {
   top: 3px;
   font-size: 11px;
   padding: 2px;
-  border: 1px solid #1A1A1A;
+  border: 1px solid #1a1a1a;
   left: 7px;
-  background: rgba(255, 255, 255, .8);
-  color: black;
+  background: rgba(255,255,255,0.80);
+  color: #000;
   padding-top: 3px;
   width: 125px;
 }
 #logOutput {
   position: absolute;
   right: 220px;
-  top: -303px;
-  z-index: 5;
-  background: black;
+  bottom: 36px;
+  z-index: 999;
+  background: #000;
   opacity: 0.95;
   height: 300px;
   border: 1px solid #333;
@@ -363,7 +385,7 @@ body {
   left: 143px;
   top: 5px;
   width: 45px;
-  border: 1px solid rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0,0,0,0.50);
   border-radius: 0px !important;
   height: 20px;
   background: none;
@@ -380,11 +402,11 @@ body {
   padding-right: 5px;
   width: auto;
   cursor: pointer;
-  background: #1A1A1A;
-  color: rgba(255, 255, 0, 0.6);
+  background: #1a1a1a;
+  color: rgba(255,255,0,0.60);
 }
 .fileBrowserMenuItem input[type=submit]:hover {
-  color: #FF0;
+  color: #ff0;
 }
 .fileBrowserSection {
   position: relative;
@@ -400,23 +422,23 @@ body {
   right: 0px;
   top: 0px;
   font-size: 9px;
-  color: #B3B3B3;
+  color: #b3b3b3;
   height: 14px;
-  border-bottom: 1px solid #B3B3B3;
+  border-bottom: 1px solid #b3b3b3;
 }
 .fileBrowserSectFiles {
   position: absolute;
   left: 0px;
   right: 0px;
   top: 15px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255,255,255,0.50);
   overflow-y: auto;
   height: 270px;
   padding-bottom: 15px;
 }
 .fileBrowserSectFiles:hover {
-  background: rgba(0, 0, 0, 0.75);
-  color: rgba(255, 255, 255, 0.75);
+  background: rgba(0,0,0,0.75);
+  color: rgba(255,255,255,0.75);
 }
 .fileEntry {
   display: block;
@@ -435,8 +457,8 @@ body {
   text-overflow: ellipsis;
 }
 .fileEntry:hover {
-  color: #FFF;
-  border-left: 1px solid #FFF;
+  color: #fff;
+  border-left: 1px solid #fff;
   padding-left: 14px;
   background: #080808;
 }
@@ -452,7 +474,7 @@ body {
   position: absolute;
   left: 2px;
   top: 2px;
-  color: #CC0;
+  color: #cc0;
   font-size: 9px;
 }
 .fileEntrySize {
@@ -463,22 +485,22 @@ body {
   font-size: 9px;
 }
 .otherCursor {
-  height: 14px; 
-  visibility: visible; 
-  border-left: 2px solid #3FF !important; 
+  height: 14px;
+  visibility: visible;
+  border-left: 2px solid #3ff !important;
   opacity: 0.8;
-  cursor: pointer; 
-  padding-right: 8px; 
-  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  padding-right: 8px;
+  background: rgba(0,0,0,0.20);
 }
 .collab_cursor_old {
   position: absolute;
   z-index: 5;
-  border-left: 2px solid #FF0;
+  border-left: 2px solid #ff0;
   margin-left: -1px;
   right: 5px;
   text-align: right;
-  color: #FF0;
+  color: #ff0;
   border-bottom: 1px dashed #333;
 }
 .collab_cursor_nametag_old {
@@ -486,8 +508,8 @@ body {
   top: -16px;
   left: -2px;
   text-align: right;
-  color: black;
-  background: yellow;
+  color: #000;
+  background: #ff0;
   padding: 1px;
   padding-left: 3px;
   padding-right: 3px;
@@ -496,20 +518,20 @@ body {
 .collab_cursor {
   position: absolute;
   z-index: 5;
-  border-left: 2px solid #0FF;
+  border-left: 2px solid #0ff;
   margin-left: -1px;
   right: 210px;
   text-align: right;
-  color: #FF0;
-  border-bottom: 1px dotted rgba(0, 255, 255, 0.3);
+  color: #ff0;
+  border-bottom: 1px dotted rgba(0,255,255,0.30);
 }
 .collab_cursor_nametag {
   position: absolute;
   bottom: -1px;
   right: 0px;
   text-align: right;
-  color: black;
-  background: #00FFFF;
+  color: #000;
+  background: #0ff;
   padding: 0px;
   padding-left: 3px;
   padding-right: 3px;
@@ -525,14 +547,14 @@ body {
   left: -6px;
   width: 0px;
   height: 0px;
-  border: 3px solid rgba(0, 255, 255, 0.0);
-  border-right: 3px solid rgba(0, 255, 255, 1);
-  border-bottom: 3px solid rgba(0, 255, 255, 1);
+  border: 3px solid rgba(0,255,255,0.00);
+  border-right: 3px solid #0ff;
+  border-bottom: 3px solid #0ff;
 }
 .collab_selection {
   position: absolute;
   z-index: 5;
-  background: rgba(128, 128, 255, 0.1);
+  background: rgba(128,128,255,0.10);
 }
 #shiftshift {
   position: absolute;
@@ -544,7 +566,7 @@ body {
   height: 90px;
   z-index: 9999999;
   background: rgba(0,0,0,0.90);
-  border: 1px solid #00ACED;
+  border: 1px solid #00aced;
   display: none;
 }
 #shiftshiftTitle {
@@ -552,7 +574,7 @@ body {
   left: 10px;
   top: 15px;
   font-size: 11px;
-  color: #FFF;
+  color: #fff;
   letter-spacing: 1px;
 }
 #shiftshiftFilename {
@@ -560,11 +582,11 @@ body {
   left: 10px;
   top: 40px;
   font-size: 28px;
-  color: #FFF;
+  color: #fff;
 }
-#shiftshiftFilename span{
+#shiftshiftFilename span {
   font-size: 12px;
-  color: rgba(255, 255, 255, 1);
+  color: #fff;
   padding-left: 2px;
   letter-spacing: 1px;
 }
@@ -574,7 +596,7 @@ body {
   bottom: 10px;
   right: 10px;
   height: 33px;
-  background: #1A1A1A;
+  background: #1a1a1a;
 }
 #shiftshiftInputDiv input {
   position: absolute;
@@ -583,22 +605,22 @@ body {
   right: 10px;
   bottom: 0px;
   font-size: 13px;
-  color: #FFF;
+  color: #fff;
   background: none;
   border: none;
 }
 #shiftshiftInputDiv input:focus {
-    outline: none;
+  outline: none;
 }
 .shiftshiftBtn {
   position: absolute;
   bottom: 10px;
-  border: 1px solid white;
+  border: 1px solid #fff;
   cursor: pointer;
   font-size: 13px;
   height: 23px;
   width: 183px;
-  color: white;
+  color: #fff;
   text-align: center;
   padding-top: 8px;
 }
@@ -607,7 +629,7 @@ body {
 }
 #shiftshiftBtn_Cancel:hover {
   color: #000;
-  background: #FFF;
+  background: #fff;
 }
 #shiftshiftBtn_Delete {
   right: 10px;
@@ -615,7 +637,7 @@ body {
   background-position: 0px 0px;
 }
 #shiftshiftBtn_Delete:hover {
-  border-color: #FF3600;
+  border-color: #ff3600;
   background-image: url("./png/delete_ptrn.png");
   background-position: 2000px 0px;
   background-repeat: repeat;
@@ -627,7 +649,6 @@ body {
 #shiftshiftBtn_Delete:hover:after {
   content: "\0020\00D7\00D7\00D7";
 }
-
 #hud {
   position: absolute;
   right: 15px;
@@ -669,7 +690,7 @@ body {
   top: 25px;
   font-size: 14px;
   font-weight: 600;
-  color: #F0F;
+  color: #f0f;
   opacity: 0.3;
 }
 #hudData_ByteCount {
@@ -678,7 +699,7 @@ body {
   top: 25px;
   font-size: 14px;
   font-weight: 600;
-  color: #F0F;
+  color: #f0f;
   opacity: 0.3;
 }
 #hudData_TreeMap {
@@ -691,7 +712,7 @@ body {
 }
 .treemapBlock {
   position: absolute;
-  background: #3B5663;
+  background: #3b5663;
   opacity: 0.6;
   cursor: pointer;
   text-align: center;
@@ -706,35 +727,34 @@ body {
   box-shadow: 0px 0px 4px #000;
 }
 .treemapBlock_1 {
-  background: #C0A050;
+  background: #c0a050;
 }
 .treemapBlock_2 {
-  background: #D09050;
+  background: #d09050;
 }
 .treemapBlock_3 {
-  background: #E08050;
+  background: #e08050;
 }
 .treemapBlock_4 {
-  background: #FF7050;
+  background: #ff7050;
 }
 .treemapBlock_5 {
-  background: #FF3030;
+  background: #ff3030;
 }
-
 /*
  * Right click menu...
  */
 .rightClickContainer {
   z-index: 999999;
   cursor: default;
-  background: #FFF;
+  background: #fff;
   padding: 5px;
   font-size: 12px;
 }
 .rightClickMarker {
   z-index: 999998;
   cursor: default;
-  border: 2px solid rgba(255, 255, 0, 0.5);
+  border: 2px solid rgba(255,255,0,0.50);
   width: 8px;
   height: 8px;
   margin-left: -3px;
@@ -748,8 +768,8 @@ body {
   width: 0px;
   height: 0px;
   border: 7px solid #000;
-  border-bottom: 7px solid rgba(0,0,0,0);
-  border-left: 7px solid rgba(0,0,0,0);
+  border-bottom: 7px solid rgba(0,0,0,0.00);
+  border-left: 7px solid rgba(0,0,0,0.00);
   z-index: 100;
 }
 .rightClickItem {
@@ -757,7 +777,7 @@ body {
 }
 .rightClickItemSpacer {
   margin-left: 5px;
-  border-bottom: 1px dotted black;
+  border-bottom: 1px dotted #000;
   padding-top: 0px;
   margin-bottom: 4px;
   padding-bottom: 4px;

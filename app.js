@@ -1,4 +1,8 @@
+//
+// SERVER-SIDE
+//
 // Node.JS! :)
+//
 //var profiler = require("v8-profiler");
 console.log("\n** Starting Node service **");
 var express = require("express"); //"-unstable");
@@ -8,14 +12,24 @@ var crypto  = require('crypto');
 var walk    = require('walk');
 var spawn   = require('child_process').spawn;
 var exec    = require('child_process').exec;
+var gzippo  = require('gzippo');
+//var stylus  = require('stylus');
 
 var app = express.createServer(); 
-app.use(express.static(__dirname + '/public'));
+//app.use(express.static(__dirname + '/public'));
+var staticProvider = gzippo.staticGzip(__dirname + '/public'); // use GZIP compression for static files (cache ~1 day)!
+app.use(staticProvider);
+app.get('/',function(req,res,next){
+  console.log(staticProvider);
+  req.url = "index.html";
+  staticProvider(req, res, next);
+});
+//app.use(stylus.middleware({src: __dirname + '/public', dest: __dirname + '/public', debug: true}));
+//app.use(express.methodOverride()); 
 var port = process.env.PORT || 3141;
 app.listen(port); 
  
 var thisAppDirName = __dirname.substring(__dirname.lastIndexOf("/")+1);
-//console.log("MY DIR NAME IS: " + thisAppDirName); 
 
 var teamID = "EditorDev";
 if(teamID == thisAppDirName) {
@@ -88,19 +102,19 @@ everyone.now.s_requestFullFileFromUserID = function(fname, id, fileRequesterCall
     }
   });
 };
-everyone.now.s_teamMessageBroadcast = function(type, message){
+everyone.now.s_teamMessageBroadcast      = function(type, message){
   var teamgroup  = nowjs.getGroup(this.user.teamID);
   var scope      = "team";
   var fromUserId = this.user.clientId;
   var fromUserName = this.now.name;
   teamgroup.now.c_processMessage(scope, type, message, fromUserId, fromUserName);
 };
-everyone.now.s_leaveFile = function(fname){
+everyone.now.s_leaveFile                 = function(fname){
   var teamgroup  = nowjs.getGroup(this.user.teamID);
   var fromUserId = this.user.clientId;
   removeUserFromFileGroup(this.user, fname);
 };
-everyone.now.s_sendUserEvent = function(event){
+everyone.now.s_sendUserEvent             = function(event){
   var teamgroup  = nowjs.getGroup(this.user.teamID);
   var fromUserId = this.user.clientId;
   var fromUserName = this.now.name;
@@ -197,7 +211,7 @@ everyone.now.s_getAllProjectsFiles = function(callback){
 everyone.now.s_createNewFile = function(newFilename, fileCreatorCallback){
   localFileCreate(this.user, newFilename, fileCreatorCallback);
 };
-everyone.now.s_deleteFile = function(fname, fileDeleterCallback){
+everyone.now.s_deleteFile    = function(fname, fileDeleterCallback){
   var usersInFile = usersInGroup[this.user.teamID+fname];
   if(usersInFile === undefined || usersInFile === 0){
     localFileDelete(this.user, fname, fileDeleterCallback);
@@ -206,7 +220,7 @@ everyone.now.s_deleteFile = function(fname, fileDeleterCallback){
     fileCallback(fname, ["Cannot delete file. There are users in it!"]);
   }
 };
-everyone.now.s_renameFile = function(fname, newFName, fileRenamerCallback){
+everyone.now.s_renameFile    = function(fname, newFName, fileRenamerCallback){
   var usersInFile = usersInGroup[this.user.teamID+fname];
   if(usersInFile === undefined || usersInFile === 0){
     localFileRename(this.user, fname, newFName, fileRenamerCallback);
@@ -415,7 +429,7 @@ function localFileCreate(userObj, fname, fileCreatorCallback){
   if(!fname){
     return;
   }
-  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
+  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var path = '/NETFS/'+team+"/"+safeFName;
   try{
     fs.realpathSync(path);
@@ -444,7 +458,7 @@ function localFileDelete(userObj, fname, fileDeleterCallback){
   if(!fname){
     return;
   }
-  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
+  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var path = '/NETFS/'+team+"/"+safeFName;
   try{
     fs.realpathSync(path);
@@ -467,8 +481,8 @@ function localFileRename(userObj, fname, newFName, fileRenamerCallback){
   if(!fname || !newFName){
     return;
   }
-  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
-  var safeNewFName = newFName.split("..").join("").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
+  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+  var safeNewFName = newFName.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var pathA = '/NETFS/'+team+"/"+safeFName;
   var pathB = '/NETFS/'+team+"/"+safeNewFName;
   try{
@@ -500,8 +514,8 @@ function localFileDuplicate(userObj, fname, newFName, fileDuplicatorCallback){
   if(!fname || !newFName){
     return;
   }
-  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
-  var safeNewFName = newFName.split("..").join("").replace(/[^a-zA-Z_\.\-0-9]+/g, '');
+  var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+  var safeNewFName = newFName.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var pathA = '/NETFS/'+team+"/"+safeFName;
   var pathB = '/NETFS/'+team+"/"+safeNewFName;
   try{
@@ -568,7 +582,7 @@ function localProjectDeploy(userObj, deployerCallback){
           console.log("DEPLOY SUCCESSFUL: " + launchURL);
           setTimeout(function(){
             deployerCallback(null, launchURL);  
-          }, 500);    
+          }, 1500);    
         }
       ); // exec 2
     }
