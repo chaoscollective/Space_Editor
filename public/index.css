@@ -53,7 +53,7 @@ body {
   top: 45px;
   width: 200px;
   overflow: visible;
-  z-index: 100;
+  z-index: 9;
 }
 .notificationItem {
   background: rgba(0,0,0,0.85);
@@ -157,28 +157,28 @@ body {
 #topProjName {
   position: absolute;
   z-index: 0;
-  left: 2px;
-  top: 2px;
-  font-size: 26px;
-  font-weight: 600;
+  left: 190px;
+  top: 12px;
+  font-size: 10px;
+  font-weight: 400;
   color: rgba(0,0,0,0.40);
-  text-align: center;
-  right: 2px;
+  text-align: left;
 }
 #topSpaceLink {
   position: absolute;
+  padding: 2px;
   font-size: 10px;
   z-index: 1000;
   cursor: pointer;
   color: #000;
-  text-shadow: 0px 0px 7px #fff;
   text-decoration: none;
-  left: 20px;
-  top: 5px;
+  left: 10px;
+  top: 10px;
   letter-spacing: 1px;
 }
-#topSpaceLink span {
-  letter-spacing: 4px;
+#topSpaceLink:hover {
+  background: #f10;
+  color: #fff;
 }
 #editor {
   margin: 0px;
@@ -195,11 +195,11 @@ body {
 }
 #whoIAm {
   font-family: Arial, sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   color: #191919;
   position: absolute;
-  top: 11px;
-  left: 15px;
+  top: 12px;
+  left: 115px;
 }
 #whoAreThey {
   font-family: Arial, sans-serif;

@@ -57,7 +57,8 @@ nowjs.on('connect', function () {
   this.now.c_confirmProject(this.user.teamID);
 });
 nowjs.on('disconnect', function () {
-    console.log("DISCONNECT > "+this.user.clientId+" >> "+this.user.about.name+" <"+this.user.about.email+">"); 
+  //console.log("DISCONNECT > "+this.user.clientId+" >> "+this.user.about.name+" <"+this.user.about.email+">"); 
+  console.log("DISCONNECT > "+this.user.clientId+" >> "+this.now.name); 
   var teamgroup  = nowjs.getGroup(this.user.teamID);
   // remove user from all file groups.
   if(this.user.grouplist !== undefined){
@@ -236,50 +237,25 @@ everyone.now.s_commitProject = function(txt, committerCallback){
   var team = this.user.teamID;
   console.log("committing project... >> " + team);
   var teamProjGitPath = '/NETFS/'+team;
-    
   // this only needs done when a new repo is created...
   //localRepoInitBare(teamProjGitPath, function(err){});
-  
   localRepoCommit(this.user, teamProjGitPath, txt, function(err){
     if(err) { 
        console.log(err);
     }
     committerCallback(err);
   });
-  
-  /*
-  try{
-    fs.realpathSync(teamProjGitPath);
-    // if we get here, we've already initialized our .git repo.
-    var repo = git.Repo(teamProjGitPath, {is_bare:true}, function(err, repo){
-      if( err ) { throw new Error( err ); }
-      console.log("no errors getting repo (but .git dir may be blank...)");
-      repo.git.commit({}, '-a', '-m' + safeMsg, function(err, commit){
-        if( err ) { throw new Error( err ); }
-        console.log("made it through commit.");
-      });
-    });
-  }catch(ex){
-    console.log("No repository found yet for team: " + team + " >> initializing a new one...");
-    fs.mkdir(teamProjGitPath, 0755, function(err){
-      if( err ) { throw new Error( err ); }
-      console.log("created .git directory.");
-      var repo = git.Repo(teamProjGitPath, {is_bare:true}, function(err, repo){
-        if( err ) { throw new Error( err ); }
-        console.log("opened repo, now need to initialize it.");
-        console.log(git);
-        git.init(teamProjGitPath, function(err, git) {
-          if( err ) { throw new Error( err ); }
-          console.log("Initialized new repo!");
-          repo.git.commit({}, '-a', '-m' + safeMsg, function(err, commit){
-            if( err ) { throw new Error( err ); }
-            console.log("made it through commit (2nd path).");
-          });
-        });
-      });
-    });
-  }
-  */
+};
+everyone.now.s_fetchProjectCommits = function(fetcherCallback){
+  var team = this.user.teamID;
+  console.log("fetching project commits... >> " + team);
+  var teamProjGitPath = '/NETFS/'+team;
+  localRepoFetchGitLog(this.user, teamProjGitPath, "", function(err){
+    if(err) { 
+       console.log(err);
+    }
+    fetcherCallback(err);
+  });
 };
 everyone.now.s_deployProject = function(txt, deployerCallback){
   var team = this.user.teamID;
@@ -327,6 +303,88 @@ function localRepoCommit(userObj, gitRepoPath, message, callback){
       teamgroup.now.c_processUserFileEvent("", "commitProject", fromUserId, 0, "", safeMsg);
     }
     callback(error);
+  });
+}
+function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
+  // TODO: Make the filtering part of the git command, not an after thought with a ton of results.
+  // Seeing all checkpoints since the beginning of a project could lead to looking at many thousand results...
+  var authString      = userObj.about.name+" <"+userObj.about.email+">";
+  var safeAuthString  = Utf8.encode(authString).replace(/\"/g, "\\\"");
+  var maxInitialFetch = 10; // hardcoded max value so things don't get crazy until it's explicitly part of the git command...    
+  var maxResults      = 5;
+  var saveThisEntry   = false;
+  var filter          = null;
+  console.log("GIT: Commit to  >> "+gitRepoPath+" by: "+safeAuthString);
+  var cmd = "git log -n"+maxInitialFetch+" --numstat --pretty=format:\"commit  %H%naname   %an%namail   %ae%nrdate   %ar%nutime   %at%ncnote   %s\" -- "+fname;
+  console.log(cmd);
+  var child = exec(cmd, { 
+    encoding: 'utf8', 
+    timeout: 30000, 
+    maxBuffer: 200*1024, 
+    killSignal: 'SIGTERM',
+    cwd: gitRepoPath, 
+    env: null
+  }, 
+  function (error, stdout, stderr) {
+    if (error !== null) {
+      console.log('exec error: ' + error);
+      callback(error, null);
+    }else{
+      // success! notify team members.
+      var teamgroup  = nowjs.getGroup(userObj.teamID);
+      var fromUserId = userObj.clientId;
+      //teamgroup.now.c_processUserFileEvent("", "commitProject", fromUserId, 0, "", safeMsg);
+      console.log("***** STD OUT *****");
+      var logLines = stdout.split("\n");
+      //console.log(logLines);
+      var out = [];
+      for(var i=0; i<logLines.length; i++){
+        var line = logLines[i];
+        if(line.indexOf("commit") == 0){
+          // new entry.. first check if we've hit max entries
+          if(out.length >= maxResults){
+            break;
+          }
+          out.push({}); // start a new array
+          out[out.length-1]['commit'] = line.substring(8);
+          saveThisEntry = true;
+        }
+        if(saveThisEntry){
+          if(line.indexOf("aname") == 0){
+            out[out.length-1]['auth_name'] = line.substring(8);
+          }
+          if(line.indexOf("amail") == 0){
+            out[out.length-1]['auth_email'] = line.substring(8);
+          }
+          if(line.indexOf("rdate") == 0){
+            out[out.length-1]['time_relative'] = line.substring(8);
+          }
+          if(line.indexOf("utime") == 0){
+            out[out.length-1]['time_epoch'] = line.substring(8);
+          }
+          if(line.indexOf("cnote") == 0){
+            var comment = line.substring(8);
+            out[out.length-1]['comment'] = comment;
+            if(filter != null){
+              if(comment.indexOf(filter) < 0){
+                out.pop();
+                saveThisEntry = false;
+              }
+            }
+          }
+          if(line.length > 0 && !isNaN(line.charAt(0)) ){
+            //echo "numeric line.. counting changes!\n";
+            var numArray = line.split("\t");
+            if(numArray.length >= 2 && !isNaN(numArray[0]) && !isNaN(numArray[1]) && numArray[0] != "-" && numArray[1] != "-"){
+              out[out.length-1]['linesAdded']   = numArray[0];
+              out[out.length-1]['linesDeleted'] = numArray[1];
+            }
+          }
+        }
+      }
+      console.log(out);
+      fetcherCallback(out);
+    }
   });
 }
 //
@@ -548,7 +606,8 @@ function localFileDuplicate(userObj, fname, newFName, fileDuplicatorCallback){
 // DEPLOY / LAUNCH! :D
 //
 function localProjectDeploy(userObj, deployerCallback){
-  var team = userObj.teamID;
+  var team       = userObj.teamID;
+  var fromUserId = userObj.clientId;
   var projPath = '/NETFS/'+team;
   var projectName = team;
   
@@ -580,6 +639,10 @@ function localProjectDeploy(userObj, deployerCallback){
           var launchURL = "http://"+userObj.teamID+".chaoscollective.org/";
           console.log("START: " + stdout);
           console.log("DEPLOY SUCCESSFUL: " + launchURL);
+          setTimeout(function(){
+            var teamgroup  = nowjs.getGroup(team);
+            teamgroup.now.c_processUserFileEvent("", "launchProject", fromUserId, 0);
+          }, 50);
           setTimeout(function(){
             deployerCallback(null, launchURL);  
           }, 1500);    
@@ -675,6 +738,8 @@ var Utf8 = {
     return string;
   }
 }
+
+
 //
 //
 //

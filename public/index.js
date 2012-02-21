@@ -467,6 +467,11 @@ now.c_processUserFileEvent  = function(fname, event, fromUserId, usersInFile, se
     var userColor = userColorMap[fromUserId%userColorMap.length];
     notifyAndAddMessageToLog(userColor, uName, "commited project with note: <div class='itemType_projectAction'>"+msg+"</div>");
   }
+  if(event == "launchProject"){
+    console.log("launch!");
+    var userColor = userColorMap[fromUserId%userColorMap.length];
+    notifyAndAddMessageToLog(userColor, uName, "<div class='itemType_projectAction'>Launched the project!</div>");
+  }
   updateHUD();
 }
 now.c_processUserEvent      = function(event, fromUserId, fromUserName){
@@ -500,7 +505,7 @@ now.c_processMessage        = function(scope, type, message, fromUserId, fromUse
 now.c_confirmProject        = function(teamID){
   now.teamID = teamID;
   console.log("PROJECT: " + now.teamID);
-  $("#topProjName").html(teamID);
+  $("#topProjName").html("// <b>"+teamID+"</b>");
 }
 // ---------------------------------------------------------
 // Main functions...
@@ -1341,21 +1346,33 @@ now.ready(function(){
     updateFileBrowserFromFileList(filesAndInfo);
   });
   now.core.on('disconnect', function () {
-      console.log("DISCONNECT... Setting nowIsOnline to false"); // this.user.clientId
+    console.log("DISCONNECT... Setting nowIsOnline to false"); // this.user.clientId
     nowIsOnline = false;
     setFileStatusIndicator("offline");
   });
   now.core.on('connect', function () {
-      console.log("CONNECT... Setting nowIsOnline to true"); // this.user.clientId
+    console.log("CONNECT... Setting nowIsOnline to true"); // this.user.clientId
     nowIsOnline = true;
     setFileStatusIndicator("default");
   });
   console.log(now);
-  $("#whoIAm").html("Hello, <b>"+now.name+"</b>");
+  $("#whoIAm").html("// Hello, <b>"+now.name+"</b>");
   setTimeout(function(){
     $("#logOutputIFrame").attr("src", "http://logs.chaoscollective.org/live?log="+now.teamID); 
     document.title = now.teamID;
   }, 1000);
+  console.log("fetching git commits...");
+  now.s_fetchProjectCommits(function(commits){
+    console.log(" -- returned from git commit fetch --");
+    console.log(commits);
+    var cHTML = "";
+    for(var i=commits.length-1; i>=0; i--){
+      var c = commits[i];
+      cHTML += "<br/><div style='opacity: 0.8; padding-lefT: 20px; font-style: italic;'>"+c.time_relative+"</div><div style='padding-left: 20px; color: #090; width: 40px; display: inline-block; text-align: right;'>+"+c.linesAdded+"</div> <div style='color: #900; width: 40px; display: inline-block;'>-"+c.linesDeleted+"</div><div class='itemType_projectAction'>"+c.comment+"</div><div style='clear: both;'></div>";
+    }
+    notifyAndAddMessageToLog("#CCCCCC", "CHAOS", "Most recent commits "+cHTML); 
+    console.log(" ------------------------------------");
+  });
   //toggleHUD();
 });
 $(window).ready(function() {
