@@ -20,9 +20,9 @@ var app = express.createServer();
 var staticProvider = gzippo.staticGzip(__dirname + '/public'); // use GZIP compression for static files (cache ~1 day)!
 app.use(staticProvider);
 app.get('/',function(req,res,next){
-  res.send("unauthenticated");
-})
-app.get('/6fG8h72OeP1FcZ',function(req,res,next){ 
+//  res.send("unauthenticated");
+//});
+//app.get('/6fG8h72OeP1FcZ',function(req,res,next){ 
   console.log(staticProvider);
   req.url = "index.html";
   staticProvider(req, res, next);

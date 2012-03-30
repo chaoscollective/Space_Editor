@@ -1361,8 +1361,15 @@ function getURLHashVariable(variable){
 // ---------------------------------------------------------
 // READY! :)
 // ---------------------------------------------------------
+var alreadyConnected = false;
 now.ready(function(){
+  if(alreadyConnected){
+    // seeing ready after already being connected.. assume server was reset!
+    alert("server was reset.");
+    window.location.reload();
+  }
   nowIsOnline = true;
+  alreadyConnected = true; 
   console.log("Using NowJS -- this clientId: " + now.core.clientId); 
   now.s_sendUserEvent("join"); // let everyone know who I am!
   setInterval(ifOnlineLetCollaboratorsKnowImHere, TIME_UNTIL_GONE/3);
