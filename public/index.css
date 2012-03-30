@@ -92,6 +92,42 @@ body {
   background: #1a1a1a;
   color: rgba(255,255,255,0.98);
 }
+#topStatus {
+  position: absolute;
+  top: 8px;
+/*left: 10px; */
+  bottom: 35px;
+}
+#topProjName {
+  display: inline-block;
+  z-index: 0;
+  left: 190px;
+  top: 12px;
+  font-size: 10px;
+  font-weight: 400;
+  text-align: left;
+}
+#topSpaceLink {
+  display: inline-block;
+  padding: 4px;
+  padding-left: 14px;
+  font-size: 10px;
+  z-index: 1000;
+  cursor: pointer;
+  color: #000;
+  letter-spacing: 1px;
+}
+#topSpaceLink:hover {
+  background: #f10;
+  color: #fff;
+}
+#whoIAm {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  color: #191919;
+  display: inline-block;
+  top: 12px;
+}
 #logWindow {
   position: absolute;
   right: 15px;
@@ -154,32 +190,6 @@ body {
   font-size: 11px;
   text-align: right;
 }
-#topProjName {
-  position: absolute;
-  z-index: 0;
-  left: 190px;
-  top: 12px;
-  font-size: 10px;
-  font-weight: 400;
-  color: rgba(0,0,0,0.40);
-  text-align: left;
-}
-#topSpaceLink {
-  position: absolute;
-  padding: 2px;
-  font-size: 10px;
-  z-index: 1000;
-  cursor: pointer;
-  color: #000;
-  text-decoration: none;
-  left: 10px;
-  top: 10px;
-  letter-spacing: 1px;
-}
-#topSpaceLink:hover {
-  background: #f10;
-  color: #fff;
-}
 #editor {
   margin: 0px;
   position: absolute;
@@ -192,14 +202,6 @@ body {
 /*font-family: 'Courier New', 'Courier', monospaced;*/
   font-family: "Inconsolata", "Courier New", monospace;
 /*-webkit-font-smoothing: antialiased;*/
-}
-#whoIAm {
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  color: #191919;
-  position: absolute;
-  top: 12px;
-  left: 115px;
 }
 #whoAreThey {
   font-family: Arial, sans-serif;

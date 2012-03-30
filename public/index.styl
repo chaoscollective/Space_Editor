@@ -97,9 +97,39 @@ body {
 }
 #topStatus {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 8px;
+  /*left: 10px; */
   bottom: 35px;
+}
+#topProjName {
+  display: inline-block;
+  z-index: 0;
+  left: 190px;
+  top: 12px;
+  font-size: 10px;
+  font-weight: 400;
+  text-align: left;
+}
+#topSpaceLink {
+  display: inline-block;
+  padding: 4px;
+  padding-left: 14px;
+  font-size: 10px;
+  z-index: 1000;
+  cursor: pointer;
+  color: black;
+  letter-spacing: 1px;
+}
+#topSpaceLink:hover {
+  background: #F10;
+  color: #FFF;
+}
+#whoIAm {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  color: #191919;
+  display: inline-block;
+  top: 12px;
 }
 #logWindow {
   position: absolute;
@@ -163,33 +193,6 @@ body {
   font-size: 11px;
   text-align: right;
 }
-#topProjName {
-  position: absolute;
-  z-index: 0;
-  left: 190px;
-  top: 12px;
-  font-size: 10px;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
-  text-align: left;
-}
-
-#topSpaceLink {
-  position: absolute;
-  padding: 2px;
-  font-size: 10px;
-  z-index: 1000;
-  cursor: pointer;
-  color: black;
-  text-decoration: none;
-  left: 10px;
-  top: 10px;
-  letter-spacing: 1px;
-}
-#topSpaceLink:hover {
-  background: #F10;
-  color: #FFF;
-}
 
 #editor { 
   margin: 0px;
@@ -204,14 +207,7 @@ body {
   font-family: "Inconsolata", "Courier New", monospace;
   /*-webkit-font-smoothing: antialiased;*/
 }
-#whoIAm {
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  color: #191919;
-  position: absolute;
-  top: 12px;
-  left: 115px;
-}
+
 #whoAreThey {
   font-family: Arial, sans-serif;
   position: absolute;

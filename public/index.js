@@ -505,7 +505,7 @@ now.c_processMessage        = function(scope, type, message, fromUserId, fromUse
 now.c_confirmProject        = function(teamID){
   now.teamID = teamID;
   console.log("PROJECT: " + now.teamID);
-  $("#topProjName").html("// <b>"+teamID+"</b>");
+  $("#topProjName").html("You're editing <b><a href='http://"+teamID+".chaoscollective.org/' target='_APP_"+teamID+"' style='text-decoration: none; color: #000;'>"+teamID+"</a></b>.");
 }
 // ---------------------------------------------------------
 // Main functions...
@@ -594,7 +594,7 @@ function openFileFromServer(fname, forceOpen){
     // addFold("...", new Range(8, 44, 13, 4));
     ignoreAceChange = false;
     editor.setReadOnly(false);
-    autoFoldCode();
+    autoFoldCodeProgressive();
     previousText = editor.getSession().getValue();
     if(isSaved){
       setFileStatusIndicator("saved");
@@ -916,7 +916,12 @@ function deleteFile(fname){
 // ---------------------------------------------------------
 // Code Folding, Cleaning, and other auto tools...
 // ---------------------------------------------------------
-function autoFoldCode(){
+function autoFoldCode(levelToFold){ 
+  if(levelToFold == undefined){
+    levelToFold = 0;
+  }
+  console.log("folding code at level: " + levelToFold);
+  var level = 0;
   console.log("Auto Folding all code...");
   var lines = editor.getSession().getValue().split("\n");
   //console.log(lines);
@@ -925,26 +930,40 @@ function autoFoldCode(){
     //var iFn = lines[r].indexOf("function");
     //if(iFn >= 0){
       var iBracket = lines[r].lastIndexOf("{");
-      if(iBracket > 0){
-        // fold it!
-        //console.log("Fold: row="+r+", col="+iBracket);
-        var matchPos = editor.session.findMatchingBracket({row: r, column: iBracket+1});
-        if(matchPos != null){
-          var range = new Range(r, iBracket+1, matchPos.row, matchPos.column);
-          //console.log(range);
-          try {
-            editor.session.addFold(" ... ", range);
-          }catch(ex){
-            console.log("AutoFold Exception: " + ex);
+      var jBracket = lines[r].lastIndexOf("}");
+      var commentA  = lines[r].indexOf("//");
+      if(iBracket >= 0 && iBracket > jBracket && commentA < 0){
+        level++;
+        if(level > levelToFold){
+          // fold it!
+          //console.log("Fold: row="+r+", col="+iBracket);
+          var matchPos = editor.session.findMatchingBracket({row: r, column: iBracket+1});
+          if(matchPos != null){
+            var range = new Range(r, iBracket+1, matchPos.row, matchPos.column);
+            //console.log(range);
+            try {
+              editor.session.addFold(" ... ", range);
+            }catch(ex){
+              console.log("AutoFold Exception: " + ex);
+            }
+            //console.log(matchPos);
+            r = matchPos.row;
+            continue;
           }
-          //console.log(matchPos);
-          r = matchPos.row;
-          continue;
+        }
+      }else{
+        if(jBracket >= 0 && iBracket < 0 && commentA < 0){
+          level--;
         }
       }
     //}
-  }
+  } 
   console.log("Done folding code.");
+}
+function autoFoldCodeProgressive(){
+  autoFoldCode(2);
+  autoFoldCode(1);
+  autoFoldCode(0);
 }
 // ---------------------------------------------------------
 // Shift+Shift
@@ -1274,6 +1293,17 @@ function launchProject(){
 // ---------------------------------------------------------
 // URL manipulation.
 // ---------------------------------------------------------
+function renameMyself(){
+  setName(prompt("What shall we call thee?"));
+  now.s_sendUserEvent("join"); // let everyone know who I am!
+}
+function setName(newName){
+  now.name = newName;
+  $("#whoIAm").html("//  Hello, <b style='cursor: pointer;' onclick='renameMyself();'>"+now.name+"</b>.");
+}
+// ---------------------------------------------------------
+// URL manipulation.
+// ---------------------------------------------------------
 function getURLGetVariable(variable) { 
   var query = window.location.search.substring(1); 
   var vars = query.split("&"); 
@@ -1356,7 +1386,7 @@ now.ready(function(){
     setFileStatusIndicator("default");
   });
   console.log(now);
-  $("#whoIAm").html("// Hello, <b>"+now.name+"</b>");
+  setName(now.name);
   setTimeout(function(){
     $("#logOutputIFrame").attr("src", "http://logs.chaoscollective.org/live?log="+now.teamID); 
     document.title = now.teamID;
@@ -1433,7 +1463,7 @@ $(window).ready(function() {
       sender: 'editor'
     },
     exec: function(env, args, request) {
-      autoFoldCode();
+      autoFoldCodeProgressive();
     }
   });
   /*
