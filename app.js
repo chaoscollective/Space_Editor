@@ -5,6 +5,7 @@
 //
 //var profiler = require("v8-profiler");
 console.log("\n** Starting Node service **");
+var livelog = require("../CHAOS/livelog");
 var express = require("express"); //"-unstable");
 var util    = require("util");
 var fs      = require('fs');
@@ -13,17 +14,25 @@ var walk    = require('walk');
 var spawn   = require('child_process').spawn;
 var exec    = require('child_process').exec;
 var gzippo  = require('gzippo');
-//var stylus  = require('stylus');
 
-var app = express.createServer(); 
+function authorizeSimple(username, password) {
+    return username === 'chaos' & password === 'bettert0gether';
+}
+var app = express.createServer(express.basicAuth(authorizeSimple)); 
+
+// setup livelog
+app.get("/livelog", livelog.livelog);
+app.get("/livelogdata", express.basicAuth(livelog.basicauth), livelog.livelogdata); 
+
 //app.use(express.static(__dirname + '/public'));
-var staticProvider = gzippo.staticGzip(__dirname + '/public'); // use GZIP compression for static files (cache ~1 day)!
+//var staticProvider = gzippo.staticGzip(__dirname + '/public'); // use GZIP compression for static files (cache ~1 day)!
+var staticProvider = express.static(__dirname + '/public');
 app.use(staticProvider);
 app.get('/',function(req,res,next){
 //  res.send("unauthenticated");
 //});
 //app.get('/6fG8h72OeP1FcZ',function(req,res,next){ 
-  console.log(staticProvider);
+  //console.log(staticProvider);
   req.url = "index.html";
   staticProvider(req, res, next);
 });
@@ -53,7 +62,7 @@ nowjs.on('connect', function () {
   }
   console.log(" >> PROJECT="+this.user.teamID);
   this.user.grouplist   = []; // file groups starts out empty.
-  this.user.about       = [];
+  this.user.about       = {};
   this.user.about.name  = "Default Username";
   this.user.about.email = "default@chaos.org";
   addUserToFileGroup(this.user, ""); // the blank file group is the the team group.
@@ -175,7 +184,7 @@ everyone.now.s_getAllProjectsFiles = function(callback){
     // use this to remove/sort files before doing the more expensive "stat" operation.
     //console.log(root + " / " + nodeNamesArray);
     for(var i=nodeNamesArray.length-1; i>=0; i--){
-      if(nodeNamesArray[i] == ".git" || nodeNamesArray[i] == "node_modules"){
+      if(nodeNamesArray[i] == ".git" || nodeNamesArray[i] == "node_modules" || nodeNamesArray[i] == "_db"){
         nodeNamesArray.splice(i, 1);
       }
     }
@@ -385,7 +394,7 @@ function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
           }
         }
       }
-      console.log(out);
+      //console.log(out);
       fetcherCallback(out);
     }
   });

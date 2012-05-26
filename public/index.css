@@ -11,6 +11,7 @@ body {
   overflow: hidden;
   margin: 0;
   font-family: Arial, sans-serif;
+  background: #000;
 }
 ::-webkit-scrollbar-thumb {
   border: 2px solid #000;
@@ -43,11 +44,12 @@ body {
   left: 0px;
   right: 0px;
   top: 0px;
-  height: 34px;
-  background: #eee;
+  height: 14px;
+  background: #222;
   border-bottom: 1px solid #282a2e;
 }
 #notifications {
+  display: none;
   position: absolute;
   right: 15px;
   top: 45px;
@@ -67,6 +69,7 @@ body {
   color: rgba(255,255,255,0.50);
 }
 #topMenu {
+  display: none;
   position: absolute;
   right: 42px;
   top: 0px;
@@ -94,18 +97,26 @@ body {
 }
 #topStatus {
   position: absolute;
-  top: 8px;
-/*left: 10px; */
-  bottom: 35px;
+  top: 0px;
+  left: 0px;
 }
-#topProjName {
+#topProjName, #topFileName {
   display: inline-block;
   z-index: 0;
-  left: 190px;
-  top: 12px;
   font-size: 10px;
-  font-weight: 400;
+  font-weight: 300;
   text-align: left;
+  line-height: 16px;
+  vertical-align: top;
+  padding-left: 60px;
+  color: #888;
+}
+#topFileName{
+  color: #FFF;
+  font-weight: 400;
+  padding-left: 1px;
+  line-height: 14px;
+  font-family: monospace;
 }
 #topSpaceLink {
   display: inline-block;
@@ -193,7 +204,7 @@ body {
 #editor {
   margin: 0px;
   position: absolute;
-  top: 35px;
+  top: 15px;
   bottom: 36px;
   left: 0px;
   right: 0px;
@@ -204,6 +215,7 @@ body {
 /*-webkit-font-smoothing: antialiased;*/
 }
 #whoAreThey {
+  display: none;
   font-family: Arial, sans-serif;
   position: absolute;
   top: 8px;
@@ -358,7 +370,7 @@ body {
   z-index: 999;
   background: #000;
   opacity: 0.95;
-  height: 300px;
+  height: 500px;
   border: 1px solid #333;
   width: 500px;
   overflow: hidden;
@@ -375,7 +387,7 @@ body {
   top: 0px;
   bottom: 0px;
   width: 520px;
-  height: 300px;
+  height: 500px;
 }
 /*
 .fileBrowserMenuItem input:focus {
@@ -486,6 +498,7 @@ body {
   color: #555;
   font-size: 9px;
 }
+
 .otherCursor {
   height: 14px;
   visibility: visible;
@@ -495,34 +508,13 @@ body {
   padding-right: 8px;
   background: rgba(0,0,0,0.20);
 }
-.collab_cursor_old {
-  position: absolute;
-  z-index: 5;
-  border-left: 2px solid #ff0;
-  margin-left: -1px;
-  right: 5px;
-  text-align: right;
-  color: #ff0;
-  border-bottom: 1px dashed #333;
-}
-.collab_cursor_nametag_old {
-  position: absolute;
-  top: -16px;
-  left: -2px;
-  text-align: right;
-  color: #000;
-  background: #ff0;
-  padding: 1px;
-  padding-left: 3px;
-  padding-right: 3px;
-  opacity: 0.4;
-}
+
 .collab_cursor {
   position: absolute;
   z-index: 5;
   border-left: 2px solid #0ff;
   margin-left: -1px;
-  right: 210px;
+  right: 5px;
   text-align: right;
   color: #ff0;
   border-bottom: 1px dotted rgba(0,255,255,0.30);

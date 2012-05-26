@@ -505,7 +505,8 @@ now.c_processMessage        = function(scope, type, message, fromUserId, fromUse
 now.c_confirmProject        = function(teamID){
   now.teamID = teamID;
   console.log("PROJECT: " + now.teamID);
-  $("#topProjName").html("You're editing <b><a href='http://"+teamID+".chaoscollective.org/' target='_APP_"+teamID+"' style='text-decoration: none; color: #000;'>"+teamID+"</a></b>.");
+  // <a href='http://"+teamID+".chaoscollective.org/'
+  $("#topProjName").html(teamID+" &raquo;");
 }
 // ---------------------------------------------------------
 // Main functions...
@@ -575,6 +576,9 @@ function openFileFromServer(fname, forceOpen){
       return;
     }
     infile = fname;
+    // ----
+    $("#topFileName").html(infile);
+    // ----
     if($("#recentFile_2").html() == infile){
       $("#recentFile_2").html($("#recentFile_1").html()).attr("fname", $("#recentFile_1").attr('fname'));
       $("#recentFile_1").html($("#recentFile_0").html()).attr("fname", $("#recentFile_0").attr('fname'));
@@ -917,7 +921,7 @@ function deleteFile(fname){
 // Code Folding, Cleaning, and other auto tools...
 // ---------------------------------------------------------
 function autoFoldCode(levelToFold){ 
-  if(levelToFold == undefined){
+  if(levelToFold === undefined){
     levelToFold = 0;
   }
   console.log("folding code at level: " + levelToFold);
@@ -1286,7 +1290,7 @@ function launchProject(){
       return;
     }else{
       console.log("Launch successful! >> URL="+launchURL);
-      window.open(launchURL,'CHAOS_APP_LAUNCH_'+pageLoadID);
+      //window.open(launchURL,'CHAOS_APP_LAUNCH_'+pageLoadID);
     }
   });
 } 
@@ -1365,7 +1369,7 @@ var alreadyConnected = false;
 now.ready(function(){
   if(alreadyConnected){
     // seeing ready after already being connected.. assume server was reset!
-    alert("server was reset.");
+    alert("editor server was reset... \nreloading page...");
     window.location.reload();
   }
   nowIsOnline = true;
@@ -1395,7 +1399,7 @@ now.ready(function(){
   console.log(now);
   setName(now.name);
   setTimeout(function(){
-    $("#logOutputIFrame").attr("src", "http://logs.chaoscollective.org/live?log="+now.teamID); 
+    $("#logOutputIFrame").attr("src", "http://"+now.teamID+".chaoscollective.org/livelog"); //+now.teamID); 
     document.title = now.teamID;
   }, 1000);
   console.log("fetching git commits...");
@@ -1405,6 +1409,12 @@ now.ready(function(){
     var cHTML = "";
     for(var i=commits.length-1; i>=0; i--){
       var c = commits[i];
+      if(!c.linesAdded){
+        c.linesAdded = 0;
+      }
+      if(!c.linesDeleted){
+        c.linesDeleted = 0;
+      }
       cHTML += "<br/><div style='opacity: 0.8; padding-lefT: 20px; font-style: italic;'>"+c.time_relative+"</div><div style='padding-left: 20px; color: #090; width: 40px; display: inline-block; text-align: right;'>+"+c.linesAdded+"</div> <div style='color: #900; width: 40px; display: inline-block;'>-"+c.linesDeleted+"</div><div class='itemType_projectAction'>"+c.comment+"</div><div style='clear: both;'></div>";
     }
     notifyAndAddMessageToLog("#CCCCCC", "CHAOS", "Most recent commits "+cHTML); 
