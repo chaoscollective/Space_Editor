@@ -45,11 +45,11 @@ body {
   right: 0px;
   top: 0px;
   height: 14px;
-  background: #222;
-  border-bottom: 1px solid #282a2e;
+  background: #080808;
+  border-bottom: 1px solid #000;
 }
 #notifications {
-  display: none;
+  /*display: none;*/
   position: absolute;
   right: 15px;
   top: 45px;
@@ -108,7 +108,7 @@ body {
   text-align: left;
   line-height: 16px;
   vertical-align: top;
-  padding-left: 60px;
+  padding-left: 46px;
   color: #888;
 }
 #topFileName{

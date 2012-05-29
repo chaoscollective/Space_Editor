@@ -5,7 +5,6 @@
 //
 //var profiler = require("v8-profiler");
 console.log("\n** Starting Node service **");
-var livelog = require("../CHAOS/livelog");
 var express = require("express"); //"-unstable");
 var util    = require("util");
 var fs      = require('fs');
@@ -13,21 +12,31 @@ var crypto  = require('crypto');
 var walk    = require('walk');
 var spawn   = require('child_process').spawn;
 var exec    = require('child_process').exec;
-var gzippo  = require('gzippo');
 
-function authorizeSimple(username, password) {
-    return username === 'chaos' & password === 'bettert0gether';
-}
-var app = express.createServer(express.basicAuth(authorizeSimple)); 
-
-// setup livelog
-app.get("/livelog", livelog.livelog);
-app.get("/livelogdata", express.basicAuth(livelog.basicauth), livelog.livelogdata); 
-
-//app.use(express.static(__dirname + '/public'));
-//var staticProvider = gzippo.staticGzip(__dirname + '/public'); // use GZIP compression for static files (cache ~1 day)!
+// ------------------------------------------------
+// AUTH w/ EXPRESS
+// ------------------------------------------------
+var Auth = require("../CHAOS/auth");
+var app  = express.createServer();
+app.use(express.bodyParser());
+app.use(express.cookieParser());
+app.use(express.session({ 
+  secret: "f0p8heW2n7j2ji",
+  store:  new express.session.MemoryStore,  
+  cookie: {  
+    path     : '/',
+    httpOnly : true,
+    maxAge   : 1000*60*60*24*30*2    //60 days
+  } 
+}));
+app.use(Auth.checkLoggedIn);
+app.use(Auth.ensureAuthenticated);
+app.get("/whoami", Auth.whoami); // handy to query basic user info.
 var staticProvider = express.static(__dirname + '/public');
-app.use(staticProvider);
+app.use(staticProvider); // this is where static files will be served (html, css, js, media, etc.)
+// ------------------------------------------------
+// ------------------------------------------------
+
 app.get('/',function(req,res,next){
 //  res.send("unauthenticated");
 //});
@@ -36,8 +45,6 @@ app.get('/',function(req,res,next){
   req.url = "index.html";
   staticProvider(req, res, next);
 });
-//app.use(stylus.middleware({src: __dirname + '/public', dest: __dirname + '/public', debug: true}));
-//app.use(express.methodOverride()); 
 var port = process.env.PORT || 3141;
 app.listen(port); 
  
@@ -53,18 +60,22 @@ var nowjs = require("now");
 var everyone = nowjs.initialize(app);
 nowjs.on('connect', function () { 
   console.log("CONNECT    > " + this.user.clientId);
-  //console.log(this.user); // just clientId and cookies.
-  //console.log(this.socket);
-  //console.log(this.now.name);
   this.user.teamID      = teamID;
   if(this.now.teamID != ''){
     this.user.teamID = this.now.teamID;
   }
   console.log(" >> PROJECT="+this.user.teamID);
-  this.user.grouplist   = []; // file groups starts out empty.
+  // hack to get out best guess at the user (since now.js doesn't give us the request object or session!);
+  var u = Auth.getUserFromCache(decodeURIComponent(this.user.cookie['_chaos.auth'])) || {};
+  // now populate it..
   this.user.about       = {};
-  this.user.about.name  = "Default Username";
-  this.user.about.email = "default@chaos.org";
+  this.user.about._id   = u._id || 0;
+  this.user.about.name  = u.nameGiven || u.displayName  || "???";
+  this.user.about.email = u.emailPrimary || "anon@chaoscollective.org";
+  // -----
+  this.now.name = this.user.about.name;
+  // -----
+  this.user.grouplist   = []; // file groups starts out empty.
   addUserToFileGroup(this.user, ""); // the blank file group is the the team group.
   this.now.c_confirmProject(this.user.teamID);
 });
@@ -89,19 +100,20 @@ nowjs.on('disconnect', function () {
 //
 everyone.now.s_sendCursorUpdate = function(fname, range, changedByUser){
   var userObj = this.user;
-  var filegroup = nowjs.getGroup(userObj.teamID+fname);
+  var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
   filegroup.now.c_updateCollabCursor(this.user.clientId, this.now.name, range, changedByUser);
 };
 everyone.now.s_sendDiffPatchesToCollaborators = function(fname, patches, crc32){
   var userObj = this.user;
-  localFileIsMostRecent[userObj.teamID+fname] = false; // mark file as changed.
-  var filegroup = nowjs.getGroup(userObj.teamID+fname);
+  localFileIsMostRecent[userObj.teamID+"/"+fname] = false; // mark file as changed.
+  var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
   filegroup.now.c_updateWithDiffPatches(this.user.clientId, patches, crc32);
 };
+
 everyone.now.s_requestFullFileFromUserID = function(fname, id, fileRequesterCallback){
   var callerID = this.user.clientId;
   var userObj = this.user;
-  var filegroup = nowjs.getGroup(userObj.teamID+fname);
+  var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
   filegroup.hasClient(id, function (bool) {
     if (bool) {
       console.log("requesting full file. valid filegroup. :)");
@@ -115,6 +127,7 @@ everyone.now.s_requestFullFileFromUserID = function(fname, id, fileRequesterCall
     }
   });
 };
+
 everyone.now.s_teamMessageBroadcast      = function(type, message){
   var teamgroup  = nowjs.getGroup(this.user.teamID);
   var scope      = "team";
@@ -141,12 +154,12 @@ everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileReque
   var userObj = this.user;
   addUserToFileGroup(userObj, fname);
   //removeUserFromAllFileGroupsAndAddToThis(origUser, fname);
-  if(localFileIsMostRecent[userObj.teamID+fname] === true || localFileIsMostRecent[userObj.teamID+fname] === undefined){
+  if(localFileIsMostRecent[userObj.teamID+"/"+fname] === true || localFileIsMostRecent[userObj.teamID+"/"+fname] === undefined){
     localFileFetch(userObj, fname, fileRequesterCallback);
     console.log("FILE FETCH: " + userObj.teamID + " >> " + fname + ", by user: " + callerID);
   }else{
     console.log("FILE FETCH (passed to user): " + userObj.teamID + " >> " + fname + ", by user: " + callerID);
-    var filegroup = nowjs.getGroup(userObj.teamID+fname);
+    var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
     var users = filegroup.getUsers(function (users) {
       var foundUser = false;
       for (var i = 0; i < users.length; i++){ 
@@ -262,11 +275,20 @@ everyone.now.s_fetchProjectCommits = function(fetcherCallback){
   var team = this.user.teamID;
   console.log("fetching project commits... >> " + team);
   var teamProjGitPath = '/NETFS/'+team;
-  localRepoFetchGitLog(this.user, teamProjGitPath, "", function(err){
+  localRepoFetchGitLog(this.user, teamProjGitPath, "", function(err, gitlog){
     if(err) { 
        console.log(err);
+       if(err && err[0] && err[0].indexOf("Not a git repository") > 0){
+         localRepoInitBare(teamProjGitPath, function(err){
+           if(err){
+             console.log("ERROR INITITIALIZING GIT REPO.");
+           }else{
+            console.log("Returned from git repo init.");
+           }
+         });
+       }
     }
-    fetcherCallback(err);
+    fetcherCallback(gitlog);
   });
 };
 everyone.now.s_deployProject = function(txt, deployerCallback){
@@ -287,8 +309,8 @@ function localRepoInitBare(gitRepoPath, callback){
     env: null
   }, function (error, stdout, stderr) {
     if (error !== null) {
-      console.log('exec error: ' + error);
-      }
+      console.log('git init exec error: ' + error);
+    }
     console.log("GIT: Init >> " + gitRepoPath);
     callback(error);
   });
@@ -326,9 +348,9 @@ function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
   var maxResults      = 5;
   var saveThisEntry   = false;
   var filter          = null;
-  console.log("GIT: Commit to  >> "+gitRepoPath+" by: "+safeAuthString);
+  console.log("GIT: Fetch commit logs from  >> "+gitRepoPath+" by: "+safeAuthString);
   var cmd = "git log -n"+maxInitialFetch+" --numstat --pretty=format:\"commit  %H%naname   %an%namail   %ae%nrdate   %ar%nutime   %at%ncnote   %s\" -- "+fname;
-  console.log(cmd);
+  //console.log(cmd);
   var child = exec(cmd, { 
     encoding: 'utf8', 
     timeout: 30000, 
@@ -340,7 +362,9 @@ function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
   function (error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
-      callback(error, null);
+      if(fetcherCallback){
+        fetcherCallback(error, null);
+      }
     }else{
       // success! notify team members.
       var teamgroup  = nowjs.getGroup(userObj.teamID);
@@ -395,7 +419,7 @@ function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
         }
       }
       //console.log(out);
-      fetcherCallback(out);
+      fetcherCallback(null, out);
     }
   });
 }
@@ -404,7 +428,10 @@ function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
 //
 var usersInGroup = [];
 function addUserToFileGroup(userObj, fname){
-  var groupname = userObj.teamID + fname;
+  var groupname = userObj.teamID;
+  if(fname  && fname !== ""){
+    groupname += "/" + fname;
+  }
   //console.log("ADD TO GROUP: " + groupname);
   //console.log("        team: " + userObj.teamID);
   //console.log("       fname: " + fname);
@@ -428,7 +455,10 @@ function addUserToFileGroup(userObj, fname){
   }
 }
 function removeUserFromFileGroup(userObj, fname){
-  var groupname = userObj.teamID + fname;
+  var groupname = userObj.teamID;
+  if(fname  && fname !== ""){
+    groupname += "/" + fname;
+  }
   var g = nowjs.getGroup(groupname);
   if(g.users[userObj.clientId]){
     // user was in group.
@@ -486,7 +516,7 @@ function localFileSave(userObj, fname, fcontents, fileSaverCallback){
           console.log(err);
       } else {
       localFileIsMostRecent[team+fname] = true;  // mark file as saved with no pending changes.
-          console.log("FILE SAVED: " + fname);
+          console.log("FILE SAVED: " + team+"/"+fname);
       var filegroup = nowjs.getGroup(team+fname);
       filegroup.now.c_fileStatusChanged(fname, "saved");
       fileSizeCache[team+fname] = fcontents.length;
@@ -750,7 +780,6 @@ var Utf8 = {
     return string;
   }
 }
-
 
 //
 //

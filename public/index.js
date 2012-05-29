@@ -472,7 +472,6 @@ now.c_processUserFileEvent  = function(fname, event, fromUserId, usersInFile, se
     var userColor = userColorMap[fromUserId%userColorMap.length];
     notifyAndAddMessageToLog(userColor, uName, "<div class='itemType_projectAction'>Launched the project!</div>");
   }
-  updateHUD();
 }
 now.c_processUserEvent      = function(event, fromUserId, fromUserName){
   if(fromUserId == now.core.clientId){
@@ -561,6 +560,7 @@ function openFileFromServer(fname, forceOpen){
   initialFileloadTimeout = setTimeout(function(){
     initialStateIsWelcome = false;
   }, 3000);
+  editor.setFadeFoldWidgets(false);
   if(infile != ""){
     // we're leaving the file we're in. let collaborators know.
     now.s_leaveFile(infile);
@@ -612,8 +612,13 @@ function openFileFromServer(fname, forceOpen){
       editor.getSession().setMode(new JavaScriptMode());
     }else{
       if(fileHasExtention(f, ".css") || fileHasExtention(f, ".less")  || fileHasExtention(f, ".styl") ){
-        console.log("setting mode to: CSS");
-        editor.getSession().setMode(new CSSMode());
+        if(fileHasExtention(f, ".less")){
+          console.log("setting mode to: Less");
+          editor.getSession().setMode(new LessMode());
+        }else{
+          console.log("setting mode to: CSS");
+          editor.getSession().setMode(new CSSMode());
+        }
       }else{
         if(fileHasExtention(f, ".html")){
           console.log("setting mode to: HTML");
@@ -732,6 +737,7 @@ function setFileStatusIndicator(status){
 var Range          = require("ace/range").Range;
 var JavaScriptMode = require("ace/mode/javascript").Mode;
 var CSSMode        = require("ace/mode/css").Mode;
+var LessMode       = require("ace/mode/less").Mode;
 var HTMLMode       = require("ace/mode/html").Mode;
 var TextMode       = require("ace/mode/text").Mode;
 // ---------------------------------------------------------
@@ -837,7 +843,6 @@ function updateFileBrowserFromFileList(filesAndInfo){
         }
       }]
     });
-  updateHUD();
 }
 function fileSorter_Name(a, b){
   if(a[0].toLowerCase() == b[0].toLowerCase()){
@@ -1018,13 +1023,13 @@ function shiftshiftBroadcastKeydown(event){
             usedAsCommand = true;
             break;
           }
-          case "h":{
-            toggleHUD();
+          case "l":{
+            toggleLog();
             usedAsCommand = true;
             break;
           }
-          case "l":{
-            toggleLog();
+          case "o":{
+            toggleLogOutput();
             usedAsCommand = true;
             break;
           }
@@ -1180,92 +1185,6 @@ function toggleLog(){
   }
 }
 // ---------------------------------------------------------
-// HUD
-// ---------------------------------------------------------
-function toggleHUD(){
-  if($("#hud").is(":visible")){
-    // close it.
-    $("#hud").hide();
-    $("#topMenu_HUD").removeClass("topMenuItemOpen");
-  }else{
-    // open it.
-    updateHUD();
-    $("#hud").show();
-    $("#topMenu_HUD").addClass("topMenuItemOpen");
-  }
-}
-function updateHUD(){
-  //console.log("updating HUD");
-  var totalProjectBytes = 0;
-  for(var i=0; i<mostRecentFilesAndInfo.length; i++){
-    var fInfo = mostRecentFilesAndInfo[i];
-    //if(fInfo[1] > 0){ // only show files that have users in them...
-      totalProjectBytes += fInfo[2];
-    //}
-  }
-  mostRecentFilesAndInfo.sort(fileSorter_Size);
-  var remainingW = 196.0;
-  var remainingH = 146.0;
-  var offsetX    = 0.0
-  var offsetY    = 0.0;
-  var projectBytesLeft = totalProjectBytes;
-  var typeIsVertical = true;
-  var html = "<div id='hudData_TreeMap'>";
-  for(var i=0; i<mostRecentFilesAndInfo.length; i++){
-    var fInfo = mostRecentFilesAndInfo[i]; 
-    var sz = fInfo[2];
-    if(sz > 0){
-      var percentSz   = 1.0*sz/projectBytesLeft;
-      var maxPercentToEat = 0.4;
-      var minPercentToEat = 0.02;
-      //if(projectBytesLeft == sz){
-      //  maxPercentToEat = 1.0;
-      //}
-      var pxAreaToEat = Math.max(minPercentToEat, Math.min(maxPercentToEat, percentSz)) * remainingH*remainingW;
-      var blockH = 1;
-      var blockW = 1;
-      if(typeIsVertical){
-        blockH = remainingH;
-        blockW = Math.ceil(pxAreaToEat / blockH);
-        //blockH = blockW; // for funky square test.
-      }else{
-        blockW = remainingW;
-        blockH = Math.ceil(pxAreaToEat / blockW);
-        //blockW = blockH; // for funky square test.
-      }
-      var userFlag = Math.max(0, Math.min(5, fInfo[1]));
-      var plural = "";
-      if(fInfo[1] != 1){
-        plural = "s";
-      }
-      html += "<div class='treemapBlock treemapBlock_"+userFlag+"' title='"+fInfo[0]+" ("+fInfo[1]+" player"+plural+", "+(Math.floor(sz/102.4)/10.0)+"k)' style='top: "+offsetY+"px; left: "+offsetX+"px; width: "+blockW+"px; height: "+blockH+"px; line-height: "+blockH+"px; border-radius: 100px;' fname='"+fInfo[0]+"' onclick='safelyOpenFileFromEntry(this);'>"+fInfo[0]+"</div>";
-      if(typeIsVertical){
-        offsetX += blockW+1;
-        remainingW -= blockW+1;
-      }else{
-        offsetY += blockH+1;
-        remainingH -= blockH+1;
-      }
-      // switch type if needed.
-      if(remainingW > remainingH){
-        typeIsVertical = true;
-      }else{
-        typeIsVertical = false;
-      }
-      projectBytesLeft -= sz;
-    }
-  }
-  html += "</div>";
-  var plural = "";
-  if(mostRecentTotalUserCount != 1){
-    plural = "s";
-  }
-  html += "<div id='hudData_UserCount'>"+mostRecentTotalUserCount+" player"+plural+"</div>";
-  html += "<div id='hudData_ByteCount'>"+Math.floor(totalProjectBytes/1024)+"k bytes</div>";
-  $("#hudData").html(html);
-  
-}
-// ---------------------------------------------------------
 // LOG OUTPUT / CONSOLE
 // ---------------------------------------------------------
 function toggleLogOutput(){
@@ -1294,17 +1213,6 @@ function launchProject(){
     }
   });
 } 
-// ---------------------------------------------------------
-// URL manipulation.
-// ---------------------------------------------------------
-function renameMyself(){
-  setName(prompt("What shall we call thee?"));
-  now.s_sendUserEvent("join"); // let everyone know who I am!
-}
-function setName(newName){
-  now.name = newName;
-  $("#whoIAm").html("//  Hello, <b style='cursor: pointer;' onclick='renameMyself();'>"+now.name+"</b>.");
-}
 // ---------------------------------------------------------
 // URL manipulation.
 // ---------------------------------------------------------
@@ -1397,9 +1305,8 @@ now.ready(function(){
     setFileStatusIndicator("default");
   });
   console.log(now);
-  setName(now.name);
   setTimeout(function(){
-    $("#logOutputIFrame").attr("src", "http://"+now.teamID+".chaoscollective.org/livelog"); //+now.teamID); 
+    $("#logOutputIFrame").attr("src", "http://logs.chaoscollective.org/live?log="+now.teamID); //+now.teamID); 
     document.title = now.teamID;
   }, 1000);
   console.log("fetching git commits...");
@@ -1420,17 +1327,9 @@ now.ready(function(){
     notifyAndAddMessageToLog("#CCCCCC", "CHAOS", "Most recent commits "+cHTML); 
     console.log(" ------------------------------------");
   });
-  //toggleHUD();
 });
 $(window).ready(function() {
-  
-  //now.name = prompt("What's your name?").replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  var getName = getURLGetVariable("name");
-  if(!getName){
-    getName = "#"+Math.floor(Math.random()*10000);
-  }
-  now.name = getName;
-  
+
   var getProject = getURLGetVariable("project");
   if(getProject){
     now.teamID = getProject;
@@ -1440,10 +1339,12 @@ $(window).ready(function() {
   
   $("#whoIAm").html("Authenticating...");
   
-    editor = ace.edit("editor");
-  editor.setTheme("ace/theme/chaos");
+  console.log("startin editor...");
+  editor = ace.edit("editor");
   console.log("EDITOR");
   console.log(editor);
+  
+  editor.setTheme("ace/theme/chaos");
 
   editor.getSession().setTabSize(2);
   editor.getSession().setUseSoftTabs(true);
@@ -1454,10 +1355,6 @@ $(window).ready(function() {
   editor.getSession().setWrapLimitRange(null, null);
   editor.setScrollSpeed(8);
   
-  /*
-  console.log(editor.commands);
-  var canon = require('pilot/canon');
-  */
   editor.commands.addCommand({
       name: 'saveToServer',
       bindKey: {
@@ -1483,24 +1380,6 @@ $(window).ready(function() {
       autoFoldCodeProgressive();
     }
   });
-  /*
-  editor.commands.addCommand({
-      name: 'removeBlankLines_TightenUp',
-      bindKey: {
-          win: 'Alt-t',
-          mac: 'Alt-t',
-          sender: 'editor'
-      },
-      exec: function(env, args, request) {
-      if(!nowIsOnline){
-        return;
-      }
-      var txt = editor.getSession().getValue();
-      txt = txt.replace(/\n\n/g, "\n");
-      editor.getSession().setValue(txt);
-      }
-  });
-  */
 
   editor.getSession().on('change', function(a, b, c){
     if(!ignoreAceChange){
@@ -1557,19 +1436,6 @@ $(window).ready(function() {
   //}
   //$("body")[0].webkitRequestFullScreen(true);
   //document.documentElement.webkitRequestFullScreen(true);
-  
-  /*
-  setTimeout(function(){
-    console.log("setting theme to tiny.");
-    $("#editor").css({"line-height": "1px"});
-    editor.setTheme("ace/theme/chaostiny");
-    setTimeout(function(){
-      console.log("setting theme to normal.");
-      $("#editor").css({"line-height": "12px"});
-      editor.setTheme("ace/theme/chaos");
-    }, 3000);
-  }, 8000);
-  */
   
   setTimeout(function(){
     console.log("editor theme hack to ensure painting...");
