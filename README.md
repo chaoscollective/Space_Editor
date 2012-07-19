@@ -9,7 +9,7 @@ http://spacedemo.chaoscollective.org/?project=SandboxApp
 
 ## More Details
 
-Check out the Space overview page here for more details:
+Check out the Space overview page here for more details and a video:
 http://chaoscollective.org/projects/builtinspace.html
 
 ## Libraries/Platforms used
