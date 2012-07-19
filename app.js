@@ -1,27 +1,31 @@
 //
 // SERVER-SIDE
-//
 // Node.JS! :)
 //
-//var profiler = require("v8-profiler");
-console.log("\n** Starting Node service **");
-var express = require("express"); //"-unstable");
+console.log(".---------------------------.");
+console.log("| * Starting Node service * |");
+console.log("'---------------------------'");
+var express = require("express");
 var util    = require("util");
 var fs      = require('fs');
 var crypto  = require('crypto');
 var walk    = require('walk');
 var spawn   = require('child_process').spawn;
 var exec    = require('child_process').exec;
-
+var _       = require('underscore');
 // ------------------------------------------------
-// AUTH w/ EXPRESS
+// BASIC USER AUTH w/ EXPRESS
 // ------------------------------------------------
-var Auth = require("../CHAOS/auth");
+function authorize(user, pw) {
+  var userIsOk = false;
+  userIsOk |= (user === 'user' && pw === 'password');
+  return userIsOk;
+}
 var app  = express.createServer();
 app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({ 
-  secret: "f0p8heW2n7j2ji",
+  secret: "a very secret secret",
   store:  new express.session.MemoryStore,  
   cookie: {  
     path     : '/',
@@ -29,48 +33,411 @@ app.use(express.session({
     maxAge   : 1000*60*60*24*30*2    //60 days
   } 
 }));
-app.use(Auth.checkLoggedIn);
-app.use(Auth.ensureAuthenticated);
-app.get("/whoami", Auth.whoami); // handy to query basic user info.
+//app.use(express.basicAuth(authorize));
+var uCount = (new Date()).getTime()%99999;
+app.use(function(req, res, next){
+  req.user = req.user || {};
+  if(req.cookies && req.cookies["_username"]){
+    req.user.displayName = req.cookies["_username"];
+  }else{
+    req.user.displayName = "user_"+(uCount++);
+    res.cookie("_username", req.user.displayName);
+    console.log("say hello to new user: " + req.user.displayName);
+  }
+  next(); 
+});
 var staticProvider = express.static(__dirname + '/public');
 app.use(staticProvider); // this is where static files will be served (html, css, js, media, etc.)
 // ------------------------------------------------
 // ------------------------------------------------
 
 app.get('/',function(req,res,next){
-//  res.send("unauthenticated");
-//});
-//app.get('/6fG8h72OeP1FcZ',function(req,res,next){ 
-  //console.log(staticProvider);
   req.url = "index.html";
   staticProvider(req, res, next);
 });
-var port = process.env.PORT || 3141;
+var port = process.env.PORT || 3149;
 app.listen(port); 
  
-var thisAppDirName = __dirname.substring(__dirname.lastIndexOf("/")+1);
+var EDITABLE_APPS_DIR = "/APPS/"; 
+var ENABLE_LAUNCH     = false;
 
-var teamID = "EditorDev";
-if(teamID == thisAppDirName) {
-  teamID = "Sandbox";
+// -----------------------------------------------------
+// for demo clean-up (remove if this gives you problems)
+var REPLACE_SANDBOX_APP_DEMO_FILES = true;
+if(REPLACE_SANDBOX_APP_DEMO_FILES){
+  fs.copyF = function (src, dst, cb) {
+    function copy(err) {
+      var is
+        , os
+        ;
+  
+      if (!err) {
+        return cb(new Error("File " + dst + " exists."));
+      }
+  
+      fs.stat(src, function (err) {
+        if (err) {
+          return cb(err);
+        }
+        is = fs.createReadStream(src);
+        os = fs.createWriteStream(dst);
+        util.pump(is, os, cb);
+      });
+    }
+    fs.stat(dst, copy);
+  };
+  fs.unlinkSync(EDITABLE_APPS_DIR+"SandboxApp/app.js");
+  fs.copyF(__dirname+"/app.js", EDITABLE_APPS_DIR+"SandboxApp/app.js", function(err){
+    if(err){
+      console.log(err);
+    }else{
+      console.log("copied app.js to SandboxApp");
+    }
+  });
+  fs.unlinkSync(EDITABLE_APPS_DIR+"SandboxApp/public/index.less");
+  fs.copyF(__dirname+"/public/index.css", EDITABLE_APPS_DIR+"SandboxApp/public/index.less", function(err){
+    if(err){
+      console.log(err);
+    }else{
+      console.log("copied public/index.less to SandboxApp");
+    }
+  });
+  fs.unlinkSync(EDITABLE_APPS_DIR+"SandboxApp/public/index.js");
+  fs.copyF(__dirname+"/public/editFile.js", EDITABLE_APPS_DIR+"SandboxApp/public/index.js", function(err){
+  if(err){
+    console.log(err);
+  }else{
+    console.log("copied public/index.js to SandboxApp");
+  }
+});
 }
+// end of demo clean-up section.
+// ------------------------------------------------------
 
+var thisAppDirName = __dirname.substring(__dirname.lastIndexOf("/")+1);
+var teamID = "SandboxApp";
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+// TODO: check credentials before doing any of these GET/POST...
+app.get("/allProjectFiles", function(req, res){
+  if(req.query.project && req.query.project.length > 2){
+    var project = req.query.project.replace(/\.\./g, "");
+    var projectRoot = EDITABLE_APPS_DIR+project;
+    console.log("Listing all project files [" + projectRoot+"] for user: "+req.user.displayName + " --> (~"+usersInGroup[project]+" sockets)");
+    try{
+      var walker = walk.walk(projectRoot, {followLinks: false});
+      var filesAndInfo = [];
+      walker.on("names", function (root, nodeNamesArray) {
+        // use this to remove/sort files before doing the more expensive "stat" operation.
+        for(var i=nodeNamesArray.length-1; i>=0; i--){
+          if(nodeNamesArray[i] == ".git" || nodeNamesArray[i] == "node_modules" || nodeNamesArray[i] == "_db"){
+            nodeNamesArray.splice(i, 1);
+          }
+        }
+      });
+      walker.on("file", function (root, fileStats, next) {
+        var rt = root.substring(projectRoot.length+1);
+        if(rt.length > 0){
+          rt += "/";
+        }
+        var fname = rt + fileStats.name;
+        var sz = fileSizeCache[project+"/"+fname];
+        if(sz === undefined){
+          // first time checking files size.. get it!
+          sz = fileStats.size;
+          fileSizeCache[project+"/"+fname] = sz;
+        }
+        var td = fileTodoCache[project+"/"+fname];
+        var fd = null;
+        if(td === undefined && sz < 1000000){
+          fd = fs.readFileSync(projectRoot+"/"+fname, "utf8");
+          td = occurrences(fd, "TODO");
+          fileTodoCache[project+"/"+fname] = td;
+        }
+        var fm = fileFixMeCache[project+"/"+fname];
+        if(fm === undefined && sz < 1000000){
+          if(fd === null){
+            fd = fs.readFileSync(projectRoot+"/"+fname, "utf8");
+          }
+          fm = occurrences(fd, "FIXME");
+          fileFixMeCache[project+"/"+fname] = fm;
+        }
+        var n = usersInGroup[project+"/"+fname];
+        if(n){
+          filesAndInfo.push([fname, n, sz, td, fm]);
+        }else{
+          filesAndInfo.push([fname, 0, sz, td, fm]);
+        }
+        fd = null;
+        next();
+      });
+      walker.on("end", function() {
+      //console.log("Recursively listed project files for: " + project);
+      // indicate total team members online.
+      var n = usersInGroup[project];
+      if(n){
+        filesAndInfo.push(["", n]);
+      }else{
+        filesAndInfo.push(["", 0]);
+      }
+      res.send(JSON.stringify(filesAndInfo));
+      //callback(null, filesAndInfo);
+    }); 
+    }catch(ex){
+      console.log("<span style='color: #F00;'>*** exception walking files!</span>");
+      console.log(err);
+    }
+  }else{
+    res.send("FAIL: no project name.");
+  }
+});
+app.post("/launchProject", function(req, res){
+  if(!ENABLE_LAUNCH){
+    res.send("FAIL: Sorry, but launching projects is not currently enabled.");
+    return;
+  }
+  if(req.query.project && req.query.project.length > 2){
+    var projectName = req.query.project.replace(/\.\./g, "");
+    console.log("LAUNCHING Project ["+req.user.displayName+"] >> " + projectName);
+    var projPath = EDITABLE_APPS_DIR+projectName;   
+    exec('stop node_'+projectName, { 
+        encoding: 'utf8', 
+        timeout: 30000, 
+        maxBuffer: 200*1024, 
+        killSignal: 'SIGTERM',
+        env: null
+      }, 
+      function (error, stdout, stderr) {
+        if (error !== null) {
+          console.log('exec error: ' + error);
+          // return res.send("FAIL:");
+        }
+        console.log("STOP: " + stdout);
+        exec('start node_'+projectName, { 
+            encoding: 'utf8', 
+            timeout: 30000, 
+            maxBuffer: 200*1024, 
+            killSignal: 'SIGTERM',
+            env: null
+          }, 
+          function (error, stdout, stderr) {
+            if (error !== null) {
+              console.log('exec error: ' + error);
+              return res.send("FAIL:");
+            }
+            var launchURL = "http://"+projectName.toLowerCase()+".chaoscollective.org/";
+            console.log("START: " + stdout);
+            console.log("DEPLOY SUCCESSFUL: " + launchURL);
+            res.send("ok");
+          }
+        ); // exec 2
+      }
+    ); // exec 1
+  }else{
+    res.send("FAIL: no project name.");
+  }
+});
+app.post("/createFile", function(req, res){
+  console.log("CREATE FILE ["+req.user.displayName+"]");
+  if(req.query.project && req.query.project.length > 2 && req.body.fname){
+    var projectName = req.query.project.replace(/\.\./g, "");
+    var fname = req.body.fname;
+    if(!fname || fname.length < 2){
+      return;
+    }
+    var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+    var path = EDITABLE_APPS_DIR+projectName+"/"+safeFName;
+    try{
+      fs.realpathSync(path);
+      console.log("file already exists.. no need to create it: " + path);
+      return res.send("FAIL: File already exists. No need to create it.");
+    }catch(ex){
+      console.log("file doesn't exist yet. creating it: " + path);
+      fs.writeFile(path, "", function(err) {
+        if(err) {
+          console.log(err);
+          return res.send("FAIL: Error creating new file.");
+        } else {
+          localFileIsMostRecent[projectName+"/"+safeFName] = true;  // mark file as saved with no pending changes.
+          console.log("FILE SAVED: " + safeFName);
+          res.send(safeFName);
+        }
+      });
+    }  
+  }else{
+    res.send("FAIL: no project and/or filename.");
+  }
+});
+app.post("/deleteFile", function(req, res){
+  console.log("DELETE FILE ["+req.user.displayName+"]");
+  if(req.query.project && req.query.project.length > 2 && req.body.fname){
+    var projectName = req.query.project.replace(/\.\./g, "");
+    var fname = req.body.fname;
+    if(!fname || fname.length < 2){
+      return;
+    }
+    var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+    var path = EDITABLE_APPS_DIR+projectName+"/"+safeFName;
+    if(usersInGroup[projectName+"/"+safeFName]){
+      console.log("Delete stopped, users still in file: "+path);
+      return res.send("FAIL: users still in file.");
+    }
+    try{
+      fs.realpathSync(path);
+      console.log("file exists.. delete it: " + path);
+      fs.unlink(path, function (err) {
+        if (err){
+          console.log(err);
+          return res.send("FAIL: could not delete file.");
+        }
+        console.log("successfully deleted: " + path);
+        return res.send(safeFName);
+      });
+    }catch(ex){
+      return res.send("FAIL: File doesn't exist. No need to delete it.");
+    }  
+  }else{
+    res.send("FAIL: no project and/or filename.");
+  }
+});
+app.post("/renameFile", function(req, res){
+  console.log("RENAME FILE ["+req.user.displayName+"]");
+  if(req.query.project && req.query.project.length > 2 && req.body.fname && req.body.newfname){
+    var projectName = req.query.project.replace(/\.\./g, "");
+    var fname = req.body.fname;
+    if(!fname || fname.length < 2){
+      return;
+    }
+    var newfname = req.body.newfname;
+    if(!newfname || newfname.length < 2){
+      return;
+    }
+    var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+    var safeNewFName = newfname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+    var pathA = EDITABLE_APPS_DIR+projectName+"/"+safeFName;
+    var pathB = EDITABLE_APPS_DIR+projectName+"/"+safeNewFName;
+    try{
+      fs.realpathSync(pathA);
+      try{
+        fs.realpathSync(pathB);
+        // if pathB exists, don't do the rename -- it will copy over an existing file!
+        console.log("trying to rename file to something that already exists: " + pathA + " >> " + pathB);
+        return res.send("FAIL: Cannot rename a file to something that already exists.");
+      }catch(ex2){
+        // ok, all set!
+        //console.log("all set to rename file: " + pathA + " >> " + pathB);
+        fs.rename(pathA, pathB, function (err) {
+          if (err){
+            console.log(err);
+            return res.send("FAIL: Error renaming file.");
+          }
+          console.log("successfully renamed file ["+req.user.displayName+"]: " + pathA + " >> " + pathB);
+          return res.send(safeNewFName);
+        });
+      }
+    }catch(ex){
+      console.log("trying to rename a file that doesn't exist: " + pathA);
+      return res.send("FAIL: File doesn't exist. Cannot rename it.");
+    }
+  }else{
+    res.send("FAIL: no project and/or filename.");
+  }
+});
+app.post("/duplicateFile", function(req, res){
+  console.log("DUPLICATE FILE ["+req.user.displayName+"]");
+  if(req.query.project && req.query.project.length > 2 && req.body.fname && req.body.newfname){
+    var projectName = req.query.project.replace(/\.\./g, "");
+    var fname = req.body.fname;
+    if(!fname || fname.length < 2){
+      return;
+    }
+    var newfname = req.body.newfname;
+    if(!newfname || newfname.length < 2){
+      return;
+    }
+    var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+    var safeNewFName = newfname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
+    var pathA = EDITABLE_APPS_DIR+projectName+"/"+safeFName;
+    var pathB = EDITABLE_APPS_DIR+projectName+"/"+safeNewFName;
+    try{
+      fs.realpathSync(pathA);
+      try{
+        fs.realpathSync(pathB);
+        // if pathB exists, don't do the rename -- it will copy over an existing file!
+        console.log("trying to duplicate file to something that already exists: " + pathA + " >> " + pathB);
+        return res.send("FAIL: Cannot duplicate a file to something that already exists.");
+      }catch(ex2){
+        // ok, all set!
+        var is = fs.createReadStream(pathA);
+        var os = fs.createWriteStream(pathB);
+        util.pump(is, os, function(err){
+          if (err){
+            console.log(err);
+            return res.send("FAIL: Error duplicating file.");
+          }
+          console.log("successfully duplicated file ["+req.user.displayName+"]: " + pathA + " >> " + pathB);
+          return res.send(safeNewFName);
+        });
+      }
+    }catch(ex){
+      console.log("trying to duplicate a file that doesn't exist: " + pathA);
+      return res.send("FAIL: File doesn't exist. Cannot duplicate it.");
+    }
+  }else{
+    res.send("FAIL: no project and/or filename.");
+  }
+});
+app.get("/allUsersEditingProjectsIFrame", function(req, res){
+  var html = "<html></head><script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script><head><body><script>";
+  //html += "var u = "+JSON.stringify(nowUsersList)+";";
+  html += "function receiveMessage(event){var o = event.origin; var p = parent; $.get('/allUsersEditingProjects', function(data){p.postMessage(JSON.parse(data), o);});};";
+  html += "window.addEventListener('message', receiveMessage, false);";
+  html += "</script></body></html>";
+  res.send(html);
+});
+app.get("/allUsersEditingProjects", function(req, res){
+  var nowUsers = everyone.users || {}; //nowjs.server.connected || {};
+  var nowUsersList = [];
+  _.each(nowUsers, function(val, name){
+    var u = (val||{}).user || {};
+    var a = u.about || {};
+    a.grouplist = u.grouplist;
+    nowUsersList.push(a);
+  });
+  /*
+  var html = "<html></head><head><body><script>";
+  html += "var u = "+JSON.stringify(nowUsersList)+";";
+  html += "function receiveMessage(event){parent.postMessage(u, event.origin);};";
+  html += "window.addEventListener('message', receiveMessage, false);";
+  html += "</script></body></html>";
+  res.send(html);
+  */
+  res.send(JSON.stringify(nowUsersList));
+});
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 var localFileIsMostRecent = []; // an array of flags indicating if the file has been modified since last save.
-var nowjs = require("now");
-var everyone = nowjs.initialize(app);
+var nowjs     = require("now");
+var everyone  = nowjs.initialize(app);
+// ------ REALTIME NOWJS COLLABORATION ------
+//var nowcollab = require("../CHAOS/nowcollab");
+//nowcollab.initialize(nowjs, everyone, true);
+//-------------------------------------------
 nowjs.on('connect', function () { 
-  console.log("CONNECT    > " + this.user.clientId);
+  //console.log("CONNECT    > " + this.user.clientId);
   this.user.teamID      = teamID;
   if(this.now.teamID != ''){
     this.user.teamID = this.now.teamID;
   }
-  console.log(" >> PROJECT="+this.user.teamID);
+  //console.log(this.user);
+  //console.log(everyone.users);
+  //console.log(" >> PROJECT="+this.user.teamID);
   // hack to get out best guess at the user (since now.js doesn't give us the request object or session!);
-  var u = Auth.getUserFromCache(decodeURIComponent(this.user.cookie['_chaos.auth'])) || {};
+  var u = {}; //(Auth || {}).getUserFromCache(decodeURIComponent(this.user.cookie['_chaos.auth'])) || {};
   // now populate it..
   this.user.about       = {};
   this.user.about._id   = u._id || 0;
-  this.user.about.name  = u.nameGiven || u.displayName  || "???";
+  this.user.about.name  = u.nameGiven || u.displayName  || this.user.cookie["_username"] || "???";
   this.user.about.email = u.emailPrimary || "anon@chaoscollective.org";
   // -----
   this.now.name = this.user.about.name;
@@ -81,13 +448,13 @@ nowjs.on('connect', function () {
 });
 nowjs.on('disconnect', function () {
   //console.log("DISCONNECT > "+this.user.clientId+" >> "+this.user.about.name+" <"+this.user.about.email+">"); 
-  console.log("DISCONNECT > "+this.user.clientId+" >> "+this.now.name); 
+  //console.log("DISCONNECT > "+this.user.clientId+" >> "+this.now.name); 
   var teamgroup  = nowjs.getGroup(this.user.teamID);
   // remove user from all file groups.
   if(this.user.grouplist !== undefined){
-    for(var i=0; i<this.user.grouplist.length; i++){
+    for(var i=this.user.grouplist.length-1; i>=0; i--){
       var g = this.user.grouplist[i];
-      var fname = g.substring(g.indexOf("_")+1);
+      var fname = g.substring(g.indexOf("/")+1);
       usersInGroupMinusMinus(g);
       teamgroup.now.c_processUserFileEvent(fname, "leaveFile", this.user.clientId, usersInGroup[g]);
     }
@@ -95,12 +462,12 @@ nowjs.on('disconnect', function () {
   // finally, remove the user from the team group. (don't need this now since team is also in user.grouplist)
   teamgroup.now.c_processUserEvent("leave", this.user.clientId, this.now.name);
 });
-//
+//---------
 // NOW: Remote collab messages.
-//
 everyone.now.s_sendCursorUpdate = function(fname, range, changedByUser){
   var userObj = this.user;
   var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
+  //console.log(filegroup);
   filegroup.now.c_updateCollabCursor(this.user.clientId, this.now.name, range, changedByUser);
 };
 everyone.now.s_sendDiffPatchesToCollaborators = function(fname, patches, crc32){
@@ -109,46 +476,7 @@ everyone.now.s_sendDiffPatchesToCollaborators = function(fname, patches, crc32){
   var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
   filegroup.now.c_updateWithDiffPatches(this.user.clientId, patches, crc32);
 };
-
-everyone.now.s_requestFullFileFromUserID = function(fname, id, fileRequesterCallback){
-  var callerID = this.user.clientId;
-  var userObj = this.user;
-  var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
-  filegroup.hasClient(id, function (bool) {
-    if (bool) {
-      console.log("requesting full file. valid filegroup. :)");
-      nowjs.getClient(id, function(){
-        if(this.now === undefined){
-          console.log("Undefined clientId for requestFullFileFromUserID >> " + id);
-        }else{
-          this.now.c_userRequestedFullFile(fname, callerID, fileRequesterCallback);
-        }
-      });
-    }
-  });
-};
-
-everyone.now.s_teamMessageBroadcast      = function(type, message){
-  var teamgroup  = nowjs.getGroup(this.user.teamID);
-  var scope      = "team";
-  var fromUserId = this.user.clientId;
-  var fromUserName = this.now.name;
-  teamgroup.now.c_processMessage(scope, type, message, fromUserId, fromUserName);
-};
-everyone.now.s_leaveFile                 = function(fname){
-  var teamgroup  = nowjs.getGroup(this.user.teamID);
-  var fromUserId = this.user.clientId;
-  removeUserFromFileGroup(this.user, fname);
-};
-everyone.now.s_sendUserEvent             = function(event){
-  var teamgroup  = nowjs.getGroup(this.user.teamID);
-  var fromUserId = this.user.clientId;
-  var fromUserName = this.now.name;
-  teamgroup.now.c_processUserEvent(event, fromUserId, fromUserName);
-};
-//
 // NOW: Remote file tools.
-//
 everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileRequesterCallback){
   var callerID = this.user.clientId;
   var userObj = this.user;
@@ -156,7 +484,7 @@ everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileReque
   //removeUserFromAllFileGroupsAndAddToThis(origUser, fname);
   if(localFileIsMostRecent[userObj.teamID+"/"+fname] === true || localFileIsMostRecent[userObj.teamID+"/"+fname] === undefined){
     localFileFetch(userObj, fname, fileRequesterCallback);
-    console.log("FILE FETCH: " + userObj.teamID + " >> " + fname + ", by user: " + callerID);
+    //console.log("FILE FETCH: " + userObj.teamID + " >> " + fname + ", by user: " + (userObj.about.name || callerID));
   }else{
     console.log("FILE FETCH (passed to user): " + userObj.teamID + " >> " + fname + ", by user: " + callerID);
     var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
@@ -188,9 +516,48 @@ everyone.now.s_getLatestFileContentsAndJoinFileGroup = function(fname, fileReque
 everyone.now.s_saveUserFileContentsToServer = function(fname, fcontents, fileSaverCallback){
   localFileSave(this.user, fname, fcontents, fileSaverCallback);
 };
+//-------
+// get rid of this is possible...
+everyone.now.s_requestFullFileFromUserID = function(fname, id, fileRequesterCallback){
+  var callerID = this.user.clientId;
+  var userObj = this.user;
+  var filegroup = nowjs.getGroup(userObj.teamID+"/"+fname);
+  filegroup.hasClient(id, function (bool) {
+    if (bool) {
+      //console.log("requesting full file. valid filegroup. :)");
+      nowjs.getClient(id, function(){
+        if(this.now === undefined){
+          console.log("Undefined clientId for requestFullFileFromUserID >> " + id);
+        }else{
+          this.now.c_userRequestedFullFile(fname, callerID, fileRequesterCallback);
+        }
+      });
+    }
+  });
+};
+//-------
+everyone.now.s_teamMessageBroadcast      = function(type, message){
+  var teamgroup  = nowjs.getGroup(this.user.teamID);
+  var scope      = "team";
+  var fromUserId = this.user.clientId;
+  var fromUserName = this.now.name;
+  teamgroup.now.c_processMessage(scope, type, message, fromUserId, fromUserName);
+};
+everyone.now.s_leaveFile                 = function(fname){
+  var teamgroup  = nowjs.getGroup(this.user.teamID);
+  var fromUserId = this.user.clientId;
+  removeUserFromFileGroup(this.user, fname);
+};
+everyone.now.s_sendUserEvent             = function(event){
+  var teamgroup  = nowjs.getGroup(this.user.teamID);
+  var fromUserId = this.user.clientId;
+  var fromUserName = this.now.name;
+  teamgroup.now.c_processUserEvent(event, fromUserId, fromUserName);
+};
+//-------
 everyone.now.s_getAllProjectsFiles = function(callback){
   var team = this.user.teamID;
-  var projectRoot = "/NETFS/"+team;
+  var projectRoot = EDITABLE_APPS_DIR+team;
   var walker = walk.walk(projectRoot, {followLinks: false});
   var filesAndInfo = [];
   walker.on("names", function (root, nodeNamesArray) {
@@ -208,13 +575,13 @@ everyone.now.s_getAllProjectsFiles = function(callback){
       rt += "/";
     }
     var fname = rt + fileStats.name;
-    var sz = fileSizeCache[team+fname];
+    var sz = fileSizeCache[team+"/"+fname];
     if(sz === undefined){
       // first time checking files size.. get it!
       sz = fileStats.size;
-      fileSizeCache[team+fname] = sz;
+      fileSizeCache[team+"/"+fname] = sz;
     }
-    var n = usersInGroup[team+fname];
+    var n = usersInGroup[team+"/"+fname];
     if(n){
       filesAndInfo.push([fname, n, sz]);
     }else{
@@ -261,7 +628,7 @@ everyone.now.s_duplicateFile = function(fname, newFName, fileDuplicatorCallback)
 everyone.now.s_commitProject = function(txt, committerCallback){
   var team = this.user.teamID;
   console.log("committing project... >> " + team);
-  var teamProjGitPath = '/NETFS/'+team;
+  var teamProjGitPath = EDITABLE_APPS_DIR+team;
   // this only needs done when a new repo is created...
   //localRepoInitBare(teamProjGitPath, function(err){});
   localRepoCommit(this.user, teamProjGitPath, txt, function(err){
@@ -274,7 +641,7 @@ everyone.now.s_commitProject = function(txt, committerCallback){
 everyone.now.s_fetchProjectCommits = function(fetcherCallback){
   var team = this.user.teamID;
   console.log("fetching project commits... >> " + team);
-  var teamProjGitPath = '/NETFS/'+team;
+  var teamProjGitPath = EDITABLE_APPS_DIR+team;
   localRepoFetchGitLog(this.user, teamProjGitPath, "", function(err, gitlog){
     if(err) { 
        console.log(err);
@@ -296,6 +663,7 @@ everyone.now.s_deployProject = function(txt, deployerCallback){
   console.log("DEPLOYING Project >> " + team);
   localProjectDeploy(this.user, deployerCallback);
 };
+//--------
 //
 // Git Repository management stuff.
 //
@@ -426,7 +794,7 @@ function localRepoFetchGitLog(userObj, gitRepoPath, fname, fetcherCallback) {
 //
 // group management stuff.
 //
-var usersInGroup = [];
+var usersInGroup = {};
 function addUserToFileGroup(userObj, fname){
   var groupname = userObj.teamID;
   if(fname  && fname !== ""){
@@ -479,7 +847,7 @@ function removeUserFromFileGroup(userObj, fname){
     //console.log("Removed user " + userObj.clientId + " from: " + groupname);
   }else{
     //console.log(g);
-    console.log("no need to remove user " + userObj.clientId + " from group: " + groupname + " ???");
+    //console.log("no need to remove user " + userObj.clientId + " from group: " + groupname + " ???");
   }
 }
 function usersInGroupPlusPlus(group){
@@ -488,7 +856,7 @@ function usersInGroupPlusPlus(group){
   }else{
     usersInGroup[group] = 1;
   }
-  console.log("UsersInGroup(+): " + group + " >> " + usersInGroup[group]);
+  //console.log("UsersInGroup(+): " + group + " >> " + usersInGroup[group]);
 }
 function usersInGroupMinusMinus(group){
   if(usersInGroup[group]){
@@ -496,41 +864,51 @@ function usersInGroupMinusMinus(group){
   }else{
     usersInGroup[group] = 0;
   }
-  console.log("UsersInGroup(-): " + group + " >> " + usersInGroup[group]);
+  //console.log("UsersInGroup(-): " + group + " >> " + usersInGroup[group]);
 }
 //
 // local file stuff
 //
-var fileSizeCache = [];
+var fileSizeCache  = {};
+var fileTodoCache  = {};
+var fileFixMeCache = {};
 function localFileFetch(userObj, fname, fileRequesterCallback){
   var team = userObj.teamID;
-  fs.readFile('/NETFS/'+team+"/"+fname, "utf-8", function (err, data) {
-    if (err) console.warn(err);
+  fs.readFile(EDITABLE_APPS_DIR+team+"/"+fname, "utf-8", function (err, data) {
+    if (err){
+      console.warn("couldn't open: "+team+"/"+fname);
+    }
     fileRequesterCallback(fname, data, err, true);
   });
 }
 function localFileSave(userObj, fname, fcontents, fileSaverCallback){
   var team = userObj.teamID;
-  fs.writeFile('/NETFS/'+team+"/"+fname, fcontents, function(err) {
+  fs.writeFile(EDITABLE_APPS_DIR+team+"/"+fname, fcontents, function(err) {
       if(err) {
           console.log(err);
       } else {
-      localFileIsMostRecent[team+fname] = true;  // mark file as saved with no pending changes.
-          console.log("FILE SAVED: " + team+"/"+fname);
-      var filegroup = nowjs.getGroup(team+fname);
-      filegroup.now.c_fileStatusChanged(fname, "saved");
-      fileSizeCache[team+fname] = fcontents.length;
+        localFileIsMostRecent[team+"/"+fname] = true;  // mark file as saved with no pending changes.
+        console.log("FILE SAVED: " + team+"/"+fname);
+        var filegroup = nowjs.getGroup(team+"/"+fname);
+        filegroup.now.c_fileStatusChanged(fname, "saved");
+        var sz = fcontents.length;
+        fileSizeCache[team+"/"+fname] = sz;
+        if(sz < 1000000){
+          fileTodoCache[team+"/"+fname]  = occurrences(fcontents, "TODO");
+          fileFixMeCache[team+"/"+fname] = occurrences(fcontents, "FIXME");
+        }
       }
     fileSaverCallback(err);
   });
 }
+// ---------
 function localFileCreate(userObj, fname, fileCreatorCallback){
   var team = userObj.teamID;
   if(!fname){
     return;
   }
   var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
-  var path = '/NETFS/'+team+"/"+safeFName;
+  var path = EDITABLE_APPS_DIR+team+"/"+safeFName;
   try{
     fs.realpathSync(path);
     console.log("file already exists.. no need to create it: " + path);
@@ -559,7 +937,7 @@ function localFileDelete(userObj, fname, fileDeleterCallback){
     return;
   }
   var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
-  var path = '/NETFS/'+team+"/"+safeFName;
+  var path = EDITABLE_APPS_DIR+team+"/"+safeFName;
   try{
     fs.realpathSync(path);
     console.log("all set to delete file: " + path);
@@ -583,8 +961,8 @@ function localFileRename(userObj, fname, newFName, fileRenamerCallback){
   }
   var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var safeNewFName = newFName.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
-  var pathA = '/NETFS/'+team+"/"+safeFName;
-  var pathB = '/NETFS/'+team+"/"+safeNewFName;
+  var pathA = EDITABLE_APPS_DIR+team+"/"+safeFName;
+  var pathB = EDITABLE_APPS_DIR+team+"/"+safeNewFName;
   try{
     fs.realpathSync(pathA);
     try{
@@ -616,8 +994,8 @@ function localFileDuplicate(userObj, fname, newFName, fileDuplicatorCallback){
   }
   var safeFName = fname.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
   var safeNewFName = newFName.split("..").join("").replace(/[^a-zA-Z_\.\-0-9\/\(\)]+/g, '');
-  var pathA = '/NETFS/'+team+"/"+safeFName;
-  var pathB = '/NETFS/'+team+"/"+safeNewFName;
+  var pathA = EDITABLE_APPS_DIR+team+"/"+safeFName;
+  var pathB = EDITABLE_APPS_DIR+team+"/"+safeNewFName;
   try{
     fs.realpathSync(pathA);
     try{
@@ -650,7 +1028,7 @@ function localFileDuplicate(userObj, fname, newFName, fileDuplicatorCallback){
 function localProjectDeploy(userObj, deployerCallback){
   var team       = userObj.teamID;
   var fromUserId = userObj.clientId;
-  var projPath = '/NETFS/'+team;
+  var projPath   = EDITABLE_APPS_DIR+team;
   var projectName = team;
   
   console.log("DEPLOYMENT PLACEHOLDER: " + projectName);
@@ -707,7 +1085,6 @@ function localProjectDeploy(userObj, deployerCallback){
       "start": "server.js"
     }
   };
-  
   // Attempt to clean up an existing application
   haibuClient.clean(haibuApp, function (err, result) {
     if (err) {
@@ -781,9 +1158,21 @@ var Utf8 = {
   }
 }
 
+function occurrences(string, substring){
+  var n=0;
+  var pos=0;
+  while(true){
+    pos=string.indexOf(substring,pos);
+    if(pos!=-1){ n++; pos+=substring.length;}
+    else{break;}
+  }
+  return(n);
+}
+
 //
 //
 //
-console.log("** Node service up and running **\n");
+console.log("| *. Node up and running .* |");
+console.log("'---------------------------'");
 
 

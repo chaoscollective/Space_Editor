@@ -45,7 +45,7 @@
     // If the connection in currently open (or in a reopening state) reset the close 
     // timeout since we have just received data. This check is necessary so
     // that we don't reset the timeout on an explicitly disconnected connection.
-    if (this.connected || this.connecting || this.reconnecting) {
+    if (this.socket.connected || this.socket.connecting || this.socket.reconnecting) {
       this.setCloseTimeout();
     }
 
@@ -70,12 +70,18 @@
    */
 
   Transport.prototype.onPacket = function (packet) {
+    this.socket.setHeartbeatTimeout();
+
     if (packet.type == 'heartbeat') {
       return this.onHeartbeat();
     }
 
     if (packet.type == 'connect' && packet.endpoint == '') {
       this.onConnect();
+    }
+
+    if (packet.type == 'error' && packet.advice == 'reconnect') {
+      this.open = false;
     }
 
     this.socket.onPacket(packet);

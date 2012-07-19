@@ -12,17 +12,42 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #000;
+  opacity: .99;
 }
-::-webkit-scrollbar-thumb {
-  border: 2px solid #000;
+
+/*OLD SCROLLBAR*/
+/*::-webkit-scrollbar-thumb {
+  border: 2px solid #111;
   background: #282a2e;
   border-radius: 0px;
 }
 ::-webkit-scrollbar {
   height: 12px;
   width: 12px;
-  background: #000;
+  background: #111;
+}*/
+
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
 }
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment  {
+height: 1px;
+display: block;
+background-color: transparent;
+}
+::-webkit-scrollbar-track-piece  {
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  height: 50px;
+  background: rgba(245,245,255,.15);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFF;
+}
+
 ::-webkit-full-screen {
   width: 100%;
   height: 100%;
@@ -37,7 +62,7 @@ body {
   right: 0px;
   height: 34px;
   background: #000;
-  z-index: 1001;
+  z-index: 10001;
 }
 #top {
   position: absolute;
@@ -210,9 +235,18 @@ body {
   right: 0px;
   font-size: 11px;
   line-height: 12px;
-/*font-family: 'Courier New', 'Courier', monospaced;*/
   font-family: "Inconsolata", "Courier New", monospace;
-/*-webkit-font-smoothing: antialiased;*/
+}
+#editorFull{
+  margin: 0px;
+  position: absolute;
+  top: 15px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  font-size: 11px;
+  line-height: 12px;
+  font-family: "Inconsolata", "Courier New", monospace;
 }
 #whoAreThey {
   display: none;
@@ -235,22 +269,31 @@ body {
   top: 16px;
   width: 4px;
   height: 4px;
-  border-radius: 10px;
   background: #444;
+}
+#fileStatusBlock{
+  position: absolute;
+  background: #444;
+  top: 5px;
+  left: 5px;
+  width: 35px;
+  background-position: initial initial;
+  background-repeat: initial initial;
+  height: 5px;
 }
 #preflightButton {
   position: absolute;
   font-family: Arial, sans-serif;
-  right: 115px;
+  right: 95px;
   top: 0px;
   height: 23px;
-  width: 85px;
+  width: auto;
   letter-spacing: 3px;
   color: #fff;
   font-size: 11px;
   padding-top: 11px;
   cursor: pointer;
-  background: url("./png/preflight.png") center right no-repeat;
+  /*background: url("./png/preflight.png") center right no-repeat;*/
   opacity: 0.5;
 }
 #preflightButton:hover {
@@ -262,13 +305,13 @@ body {
   right: 10px;
   top: 0px;
   height: 23px;
-  width: 83px;
+  width: auto;
   letter-spacing: 3px;
   color: #fff;
   font-size: 11px;
   padding-top: 11px;
   cursor: pointer;
-  background: url("./png/launch.png") center right no-repeat;
+  /*background: url("./png/launch.png") center right no-repeat;*/
   opacity: 0.5;
 }
 #launchButton:hover {
@@ -292,6 +335,7 @@ body {
   height: 34px;
 }
 .openFileHeader {
+
   position: relative;
   display: inline-block;
   font-size: 11px;
@@ -309,8 +353,8 @@ body {
   left: 0px;
   right: 0px;
   background: rgba(0,0,0,0.90);
-  z-index: 1000;
-  border-top: 1px solid #666;
+  z-index: 10000;
+  border-top: 1px solid #222;
 }
 #fileBrowserMenu {
   position: absolute;
@@ -341,24 +385,24 @@ body {
   margin-top: 5px;
   padding: 6px;
   padding-top: 4px;
-  padding-bottom: 4px;
+  padding-bottom: 3px;
   cursor: pointer;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0);
 }
 .fileBrowserMenuItem:hover {
   border: 1px solid rgba(0,0,0,0.80);
-  padding: 5px;
-  padding-top: 3px;
-  padding-bottom: 3px;
   background: rgba(0,0,0,0.10);
 }
 .fileBrowserMenuItem input {
   position: absolute;
-  top: 3px;
+  top: -1px;
   font-size: 11px;
   padding: 2px;
   border: 1px solid #1a1a1a;
-  left: 7px;
-  background: rgba(255,255,255,0.80);
+  left: -1px;
+  height: 14px;
+  background: rgba(255,255,255,1);
   color: #000;
   padding-top: 3px;
   width: 125px;
@@ -396,12 +440,13 @@ body {
 */
 .fileBrowserMenuItem select {
   position: absolute;
-  left: 143px;
-  top: 5px;
+  left: 133px;
+  top: -1px;
   width: 45px;
   border: 1px solid rgba(0,0,0,0.50);
   border-radius: 0px !important;
-  height: 20px;
+  height: 21px;
+  line-height: 21px;
   background: none;
   border-image: none;
   -webkit-appearance: none;
@@ -410,8 +455,9 @@ body {
 }
 .fileBrowserMenuItem input[type=submit] {
   position: absolute;
-  left: 191px;
-  top: 3px;
+  left: 180px;
+  top: -1px;
+  height: 21px;
   padding-left: 5px;
   padding-right: 5px;
   width: auto;
@@ -422,59 +468,83 @@ body {
 .fileBrowserMenuItem input[type=submit]:hover {
   color: #ff0;
 }
+#fileBrowserTools {
+  width: 100%;
+  height: 15px;
+  border-bottom: 1px solid #222;
+  }
+.fileBrowserToolsItem {
+  display: inline-block;
+  background: #5D459B;
+  color: black;
+  top: 2px;
+  left: 15px;
+  font-size: 10px;
+  padding: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+  cursor: pointer;
+}
 .fileBrowserSection {
   position: relative;
   display: inline-block;
   width: 215px;
   width: 22%;
   margin-left: 15px;
-  margin-top: 20px;
+  margin-top: 10px;
+  opacity: .99;
 }
 .fileBrowserSectTitle {
   position: absolute;
   left: 0px;
   right: 0px;
   top: 0px;
-  font-size: 9px;
-  color: #b3b3b3;
+  font-size: 10px;
+  color: white;
   height: 14px;
-  border-bottom: 1px solid #b3b3b3;
+  letter-spacing: .1em;
+  padding-bottom: 4px;
 }
 .fileBrowserSectFiles {
   position: absolute;
   left: 0px;
   right: 0px;
-  top: 15px;
-  color: rgba(255,255,255,0.50);
+  top: 20px;
+  color: rgba(255,255,255,0.8);
   overflow-y: auto;
-  height: 270px;
-  padding-bottom: 15px;
-}
-.fileBrowserSectFiles:hover {
-  background: rgba(0,0,0,0.75);
-  color: rgba(255,255,255,0.75);
+  height: 280px;
 }
 .fileEntry {
   display: block;
   font-size: 11px;
   padding: 0px;
-  padding-top: 3px;
-  padding-bottom: 2px;
-  padding-left: 15px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
   cursor: pointer;
   position: relative;
   min-height: 24px;
   margin-right: 2px;
-  border-bottom: 1px solid #111;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+    -webkit-transition: all .1s ease-out;
+  -moz-transition: all .1s ease-out;
+  transition: all .1s ease-out;
 }
 .fileEntry:hover {
   color: #fff;
   border-left: 1px solid #fff;
-  padding-left: 14px;
-  background: #080808;
+  border-right: 1px solid #fff;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  padding-left: 5px;
+  -webkit-transition: all .05s ease-out;
+  -moz-transition: all .05s ease-out;
+  transition: all .05s ease-out;
 }
 .fileEntryDir {
   display: block;
@@ -486,17 +556,33 @@ body {
 }
 .fileEntryUsers {
   position: absolute;
-  left: 2px;
-  top: 2px;
+  right: 40px;
+  top: 7px;
   color: #cc0;
-  font-size: 9px;
+  font-size: 17px;
 }
 .fileEntrySize {
   position: absolute;
   right: 2px;
-  top: 2px;
-  color: #555;
-  font-size: 9px;
+  top: 5px;
+  color: #AAA;
+  font-size: 9.5px;
+}
+.fileEntryTD{
+  position: absolute;
+  right: 2px;
+  bottom: 0px;
+  background: #58C554;
+  height: 2px;
+  width: 10px;
+}
+.fileEntryFM{
+  position: absolute;
+  right: 14px;
+  bottom: 0px;
+  background: #C63;
+  height: 2px;
+  width: 10px;
 }
 
 .otherCursor {
@@ -734,6 +820,110 @@ body {
 }
 .treemapBlock_5 {
   background: #ff3030;
+}
+/*
+ * Edit Project
+ */
+.editPane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.editPane iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.paneScreen{
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0, 0.8);
+  z-index: 999;
+}
+.paneScreenSelected{
+  background: rgba(0, 0, 0, 0.1);
+}
+.divScreen{
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 9998;
+}
+.divLR{
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: #0A0A0A;
+  border-right: 1px solid #1B1A1F;
+  cursor: col-resize;
+  z-index: 9999;
+}
+.divTB{
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: #0A0A0A;
+  border-bottom: 1px solid #1B1A1F;
+  cursor: row-resize;
+  z-index: 9999;
+}
+#paneDiv_0_1{
+  left: 300px;
+}
+.join {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.joinLeft {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 300px;
+}
+.joinRight {
+  position: absolute;
+  right: 0;
+  left: 300px;
+  top: 0;
+  bottom: 0;
+}
+.joinTop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 150px;
+}
+.joinBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 150px;
+  bottom: 0;
+}
+#joinRoot{
+  bottom: 36px;
 }
 /*
  * Right click menu...

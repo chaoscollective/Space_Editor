@@ -1,0 +1,67 @@
+ - Here are some notes.. yay!
+
+ - I'm liking this guys!
+
+ - Hello ! Nice work ! Keep it up !!
+
+ - Love it. Just combine this with lighttable, add a teensy bit of workflow and you have continuous inte
+gration, continuous test, and continuous deployment all in one. If you can find a way of keeping the source well-organized.... this could be THE FUTURE.
+
+ - I just find it a little slow under firefox.. anyone else ?
+
+ - It is a bit of a ram hog at the moment, but hopefully we can work on that. Will try it in Firefox
+
+ - Great ! Hope you'll fix that soon. Guys you're doing a great work !
+
+ - It works even on my nexus 7. Yay!!
+
+ - Hey - since inline comments serve as a chat log, perhaps specially formatted
+comments could be used to record
+tasks/tickets, extracted and presented
+in a separate view.
+I am a big believer in keeping specification, documentation and code in the same place, and getting the tools to stay out of the way.
+
+  - Totally! This has come up a couple times. We built chat in on the side of the full version of space as a quick fix, but definitely agree, having a bunch of people working side-by-side in the code just begs for something that logs conversations inline.
+
+ - I could easily imagine some sort of "smart-tag" like markup that would trigger items to be entered in a database.
+
+Say [Bug: bug description]
+or [Spec: spec description]
+or [Doc: doc contents]
+
+or something along those lines. (Feels a bit like Trac)
+
+  - Indeed. We have a very, very light form in that it pulls TODO: and FIXME: into barcharts in the file browser, but are very much interested in pulling those into a tool that lets you manage them in a more task tracker-ish way. (We love Pivotal Tracker :) 
+
+I haven't used Pivotal Tracker yet. (Although I have been to their office a couple of times. ;-) )
+
+Ha! Give them our love if you head back out that way ;)
+
+Do you want any help?
+ - we'll be open-sourcing the project in a little bit (couple weeks? maybe less) Ok. I will check back. and would love any and all help! :)
+
+I have been telling myself that I would make better development tools for about 6 years now, with very little to show for it. Maybe this is the kick up the back**** that I need. :-)
+
+  - We'll share the code, and then please do what you will with it! Would love to see more happen in the development tools area, and are glad to be a part of any change that happens there.
+*Why open-source it ? You can earn money with such amazing tool ! (I understand now. But it's sad all the hard work you've done not being payed)
+
+  -We're happy to contribute to the community! :) We have other projects in mind that can be fee based. This is just a tool we built for ourselves that we thought we'd share. We would love to see more things like it :)
+* World needs more people like you ;) good luck !
+Thank you!
+
+It is really hard to get big organizations to spend money on things. I have found it easier to promote OSS because no costs are involved, so no paperwork is needed. Besides which, it can be hard to get companies to send even relatively mundane data to third-parties, let alone source code, which people generally consider to be important IP and worthy of protecting. Organizations like that really feel the need to keep stuff in-house.
+
+- Great points. The hosted SaaS thing only kinda works for people iffy about sharing their data. 
+
+-Yeah, only a couple of the orgs that I have worked for have been comfortable with the hosted SaaS model, and those have tended to be the smaller, less conservative ones.
+
+- The bigger orgs value control more, and are much harder to sell to, but when you do get a sale, it is for more money. OSS + support contract is better for large, conservative organisations, SaaS is better for smaller organizations that do not have the time/manpower to set up the software themeselves.
+
+- Actually, can I just give you some money now, for making this happen?
+
+That is totally not necessary! :) Once it's open, helping make it more awesome seems like apt enough payment :D
+
+
+
+
+

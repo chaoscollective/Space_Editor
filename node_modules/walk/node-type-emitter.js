@@ -1,3 +1,4 @@
+/*jshint strict:true node:true es5:true onevar:true laxcomma:true laxbreak:true*/
 (function () {
   "use strict";
 
@@ -43,12 +44,12 @@
   // Emit events to each listener
   // Wait for all listeners to `next()` before continueing
   // (in theory this may avoid disk thrashing)
-  function emitSingleEvents(emitter, path, stats, next) {
+  function emitSingleEvents(emitter, path, stats, next, self) {
     var num = 1 + emitter.listeners(stats.type).length + emitter.listeners("node").length;
 
     function nextWhenReady() {
       num -= 1;
-      if (0 === num) { next(); }
+      if (0 === num) { next.call(self); }
     }
 
     emitter.emit(stats.type, path, stats, nextWhenReady);
@@ -60,12 +61,12 @@
   // Since the risk for disk thrashing among anything
   // other than files is relatively low, all types are
   // emitted at once, but all must complete before advancing
-  function emitPluralEvents(emitter, path, nodes, next) {
+  function emitPluralEvents(emitter, path, nodes, next, self) {
     var num = 1;
 
     function nextWhenReady() {
       num -= 1;
-      if (0 === num) { next(); }
+      if (0 === num) { next.call(self); }
     }
 
     fnodeTypesPlural.concat(["nodes", "errors"]).forEach(function (fnodeType) {
