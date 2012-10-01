@@ -56,7 +56,7 @@ app.get('/',function(req,res,next){
   staticProvider(req, res, next);
 });
 var port = process.env.PORT || 3149;
-app.listen(port); 
+var server = app.listen(port); 
  
 var EDITABLE_APPS_DIR = "/APPS/"; 
 var ENABLE_LAUNCH     = false;
@@ -418,7 +418,7 @@ app.get("/allUsersEditingProjects", function(req, res){
 // ------------------------------------------------------------
 var localFileIsMostRecent = []; // an array of flags indicating if the file has been modified since last save.
 var nowjs     = require("now");
-var everyone  = nowjs.initialize(app);
+var everyone  = nowjs.initialize(server);
 // ------ REALTIME NOWJS COLLABORATION ------
 //var nowcollab = require("../CHAOS/nowcollab");
 //nowcollab.initialize(nowjs, everyone, true);
